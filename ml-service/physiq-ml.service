@@ -1,0 +1,23 @@
+[Unit]
+Description=Physiq ML Service
+After=network.target
+
+[Service]
+Type=simple
+User=node
+WorkingDirectory=/data/.openclaw/workspace/healthhub-v2/ml-service
+Environment="PATH=/data/.openclaw/workspace/healthhub-v2/ml-service/.venv/bin:$PATH"
+Environment="PORT=8001"
+Environment="PYTHONUNBUFFERED=1"
+Environment="ML_ADMIN_TOKEN=your-admin-token-change-me"
+ExecStart=/data/.openclaw/workspace/healthhub-v2/ml-service/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8001
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=mixed
+KillSignal=SIGTERM
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
