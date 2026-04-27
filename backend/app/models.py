@@ -5,6 +5,85 @@ from uuid import uuid4
 from app.database import Base
 
 
+class MassMessage(Base):
+    __tablename__ = "mass_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    subject = Column(String(255), nullable=False)
+    html_body = Column(Text, nullable=False)
+    status = Column(String(20), default="draft")  # draft, sending, sent, partial, failed
+    target_group = Column(String(50), nullable=True)  # all, active_users, waitlist, etc.
+    target_filter = Column(JSON, nullable=True)
+    sent_count = Column(Integer, default=0)
+    failed_count = Column(Integer, default=0)
+    total_recipients = Column(Integer, default=0)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    sent_at = Column(DateTime, nullable=True)
+
+    creator = relationship("User", foreign_keys=[created_by])
+    recipients = relationship("MassMessageRecipient", back_populates="message")
+
+
+class MassMessageRecipient(Base):
+    __tablename__ = "mass_message_recipients"
+
+    id = Column(Integer, primary_key=True, index=True)
+    message_id = Column(Integer, ForeignKey("mass_messages.id"), nullable=False, index=True)
+    user_email = Column(String(255), nullable=False)
+    status = Column(String(20), default="pending")  # pending, sent, failed
+    sent_at = Column(DateTime, nullable=True)
+    error = Column(Text, nullable=True)
+
+    message = relationship("MassMessage", back_populates="recipients")
+
+
+class PricingConfig(Base):
+    __tablename__ = "pricing_config"
+
+    id = Column(Integer, primary_key=True, index=True)
+    plan = Column(String(20), unique=True, nullable=False)  # free, pro, enterprise
+    price_monthly = Column(String(50), default="€0")
+    price_annual = Column(String(50), default="€0")
+    features = Column(JSON, nullable=True)
+    is_active = Column(Boolean, default=True)
+    stripe_price_id_monthly = Column(String(255), nullable=True)
+    stripe_price_id_annual = Column(String(255), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Coupon(Base):
+    __tablename__ = "coupons"
+
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(50), unique=True, nullable=False, index=True)
+    description = Column(String(255), nullable=True)
+    discount_percent = Column(Integer, default=0)
+    discount_amount_cents = Column(Integer, default=0)
+    max_uses = Column(Integer, default=0)  # 0 = unlimited
+    current_uses = Column(Integer, default=0)
+    expires_at = Column(DateTime, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class FreeGrant(Base):
+    __tablename__ = "free_grants"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    months = Column(Integer, nullable=False)
+    reason = Column(String(255), nullable=True)
+    granted_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    expires_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", foreign_keys=[user_id])
+    grantor = relationship("User", foreign_keys=[granted_by])
+
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -98,6 +177,10 @@ class Opportunity(Base):
     uuid = Column(String(36), unique=True, nullable=False, default=lambda: str(uuid4()))
     email = Column(String(255), unique=True, nullable=False, index=True)
     name = Column(String(100), nullable=True)
+    phone = Column(String(30), nullable=True)
+    interests = Column(JSON, nullable=True)  # Array of interest strings
+    bia_access = Column(String(20), nullable=True)  # yes, occasionally, planning, no
+    newsletter_opt_in = Column(Boolean, default=True)
     status = Column(String(20), default="waiting")  # waiting, contacted, converted, expired
     referral_source = Column(String(100), nullable=True)
     

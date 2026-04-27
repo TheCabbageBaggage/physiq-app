@@ -4,17 +4,39 @@ import { useState } from 'react'
 import { AlertCircle, CheckCircle } from 'lucide-react'
 import { apiUrl } from '@/lib/api'
 
+const INTEREST_OPTIONS = [
+  { value: 'kfa', label: 'KFA-Berechnung (Körperfettanteil)' },
+  { value: 'bmi', label: 'BMI-Tracking' },
+  { value: 'nutrition', label: 'Ernährungsplan' },
+  { value: 'coaching', label: 'Fitness-Coaching' },
+]
+
+const BIA_OPTIONS = [
+  { value: 'yes', label: 'Ja, regelmäßig' },
+  { value: 'occasionally', label: 'Gelegentlich' },
+  { value: 'planning', label: 'Ich plane eine Anschaffung' },
+  { value: 'no', label: 'Nein, aber interessiert' },
+]
+
 export default function WaitlistSection() {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [biaAccess, setBiaAccess] = useState('yes')
+  const [interests, setInterests] = useState<string[]>([])
   const [agree, setAgree] = useState(false)
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
 
+  const toggleInterest = (val: string) => {
+    setInterests(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val])
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!agree) { setError('Bitte stimmen Sie der Datenschutzerklärung zu.'); return }
+    if (!name.trim()) { setError('Bitte geben Sie Ihren Namen ein.'); return }
     setLoading(true)
     setError('')
 
@@ -22,13 +44,20 @@ export default function WaitlistSection() {
       const res = await fetch(apiUrl('/opportunities'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name: '', referral_source: `bia:${biaAccess}` }),
+        body: JSON.stringify({
+          email,
+          name: name.trim(),
+          phone: phone.trim() || undefined,
+          interests: interests.length > 0 ? interests : undefined,
+          bia_access: biaAccess,
+          newsletter_opt_in: true,
+          referral_source: `bia:${biaAccess}`,
+        }),
       })
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        if (res.status === 409) {
-          // Email already registered - that's fine
+        if (res.status === 409 || (data.detail && data.detail.includes('bereits'))) {
           setSubmitted(true)
           return
         }
@@ -53,7 +82,7 @@ export default function WaitlistSection() {
               <CheckCircle className="h-8 w-8" style={{ color: '#16a34a' }} />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Erfolgreich angemeldet!</h3>
-            <p className="text-gray-600">Vielen Dank für Ihr Interesse. Wir melden uns in Kürze bei <strong>{email}</strong>.</p>
+            <p className="text-gray-600">Vielen Dank für Ihr Interesse, <strong>{name}</strong>! Wir melden uns in Kürze bei <strong>{email}</strong>.</p>
           </div>
         </div>
       </section>
@@ -99,7 +128,7 @@ export default function WaitlistSection() {
               {/* Form */}
               <div className="md:w-1/2 p-8 md:p-12">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Waitlist Anmeldung</h3>
-                <p className="text-gray-600 mb-8">Erhalten Sie Zugang zu personalisierten Vorhersagen.</p>
+                <p className="text-gray-600 mb-6">Erhalten Sie Zugang zu personalisierten Vorhersagen.</p>
 
                 {error && (
                   <div className="mb-4 flex items-start gap-2 rounded-lg border p-3 text-sm" style={{ borderColor: '#fecaca', backgroundColor: '#fef2f2', color: '#b91c1c' }}>
@@ -108,25 +137,57 @@ export default function WaitlistSection() {
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Name */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">E-Mail Adresse</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                    <input type="text" required value={name} onChange={e => setName(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C5F7C]/20 focus:border-[#2C5F7C]"
+                      placeholder="Ihr vollständiger Name" />
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">E-Mail *</label>
                     <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C5F7C]/20 focus:border-[#2C5F7C]"
                       placeholder="ihre.email@beispiel.de" />
                   </div>
 
+                  {/* Phone */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Haben Sie Zugang zu BIA-Scans?</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Telefon (optional)</label>
+                    <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C5F7C]/20 focus:border-[#2C5F7C]"
+                      placeholder="+49 123 456789" />
+                  </div>
+
+                  {/* Interests */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Interessen (optional)</label>
+                    <div className="grid grid-cols-1 gap-2">
+                      {INTEREST_OPTIONS.map(opt => (
+                        <label key={opt.value} className="flex items-center gap-2 p-2 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
+                          <input type="checkbox" checked={interests.includes(opt.value)} onChange={() => toggleInterest(opt.value)}
+                            className="h-4 w-4 rounded" style={{ accentColor: '#2C5F7C' }} />
+                          <span className="text-sm text-gray-700">{opt.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* BIA Access */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Haben Sie Zugang zu BIA-Scans?</label>
                     <select value={biaAccess} onChange={e => setBiaAccess(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none">
-                      <option value="yes">Ja, regelmäßig</option>
-                      <option value="occasionally">Gelegentlich</option>
-                      <option value="planning">Planen Anschaffung</option>
-                      <option value="no">Nein, aber interessiert</option>
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C5F7C]/20 focus:border-[#2C5F7C]">
+                      {BIA_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
                     </select>
                   </div>
 
+                  {/* GDPR Consent */}
                   <div>
                     <label className="flex items-start">
                       <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)}

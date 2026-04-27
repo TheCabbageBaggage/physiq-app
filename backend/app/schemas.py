@@ -259,6 +259,10 @@ class StripeWebhookResponse(BaseModel):
 class OpportunityCreate(BaseModel):
     email: EmailStr
     name: Optional[str] = None
+    phone: Optional[str] = Field(None, max_length=30)
+    interests: Optional[list[str]] = None
+    bia_access: Optional[str] = None  # yes, occasionally, planning, no
+    newsletter_opt_in: bool = True
     referral_source: Optional[str] = None
     calculated_kfa: Optional[float] = None
     calculated_mma: Optional[float] = None
@@ -278,6 +282,10 @@ class OpportunityResponse(BaseModel):
     uuid: str
     email: str
     name: Optional[str] = None
+    phone: Optional[str] = None
+    interests: Optional[list[str]] = None
+    bia_access: Optional[str] = None
+    newsletter_opt_in: bool = True
     status: str
     referral_source: Optional[str] = None
     calculated_kfa: Optional[float] = None
@@ -288,6 +296,7 @@ class OpportunityResponse(BaseModel):
     age: Optional[int] = None
     gender: Optional[str] = None
     created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     converted_to_customer_id: Optional[int] = None
     
     class Config:

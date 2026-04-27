@@ -74,6 +74,10 @@ def create_opportunity(
         uuid=str(uuid4()),
         email=payload.email,
         name=payload.name,
+        phone=payload.phone,
+        interests=payload.interests,
+        bia_access=payload.bia_access,
+        newsletter_opt_in=payload.newsletter_opt_in,
         status="waiting",
         referral_source=payload.referral_source,
         calculated_kfa=payload.calculated_kfa,
@@ -86,7 +90,12 @@ def create_opportunity(
         neck_cm=payload.neck_cm,
         waist_cm=payload.waist_cm,
         hip_cm=payload.hip_cm,
-        metadata_json={"ip": client_ip, "calculated_at": datetime.utcnow().isoformat()},
+        metadata_json={
+            "ip": client_ip,
+            "calculated_at": datetime.utcnow().isoformat(),
+            "interests": payload.interests,
+            "bia_access": payload.bia_access,
+        },
     )
     db.add(opp)
     db.commit()
