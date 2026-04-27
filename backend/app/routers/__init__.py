@@ -13,13 +13,16 @@ Available routers:
 - calculate: Public body composition calculator
 """
 
-from . import auth, measurements, users, subscriptions, opportunities, calculate
+from . import auth, measurements, users, subscriptions, opportunities, calculate, admin_messages, admin_stats, admin_pricing
 
 __all__ = [
     "auth",
-    "measurements", 
+    "measurements",
     "users",
     "subscriptions",
     "opportunities",
     "calculate",
+    "admin_messages",
+    "admin_stats",
+    "admin_pricing",
 ]

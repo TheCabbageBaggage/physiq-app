@@ -5,9 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
-from app.routers import auth, measurements, users, subscriptions, opportunities, calculate
+from app.routers import auth, measurements, users, subscriptions, opportunities, calculate, admin_messages, admin_stats, admin_pricing
 from app.database import engine, Base, get_db
 from app.models import User
+from app.middleware import RateLimiterMiddleware
 from app import auth as auth_mod
 
 
@@ -82,32 +83,99 @@ def run_startup_migrations() -> None:
                 )
             """))
 
-        if "opportunities" not in tables:
+        ocols = {c["name"] for c in inspector.get_columns("opportunities")}
+        opp_alters = {
+            "phone": "VARCHAR(30)",
+            "interests": "JSON",
+            "bia_access": "VARCHAR(20)",
+            "newsletter_opt_in": "BOOLEAN DEFAULT 1",
+        }
+        for col, typ in opp_alters.items():
+            if col not in ocols:
+                conn.execute(text(f"ALTER TABLE opportunities ADD COLUMN {col} {typ}"))
+
+        if "pricing_config" not in tables:
             conn.execute(text("""
-                CREATE TABLE IF NOT EXISTS opportunities (
+                CREATE TABLE IF NOT EXISTS pricing_config (
                     id INTEGER PRIMARY KEY,
-                    uuid VARCHAR(36) UNIQUE NOT NULL,
-                    email VARCHAR(255) UNIQUE NOT NULL,
-                    name VARCHAR(100),
-                    status VARCHAR(20) DEFAULT 'waiting',
-                    referral_source VARCHAR(100),
-                    calculated_kfa FLOAT,
-                    calculated_mma FLOAT,
-                    calculated_body_fat_navy FLOAT,
-                    height_cm FLOAT,
-                    weight_kg FLOAT,
-                    age INTEGER,
-                    gender VARCHAR(10),
-                    neck_cm FLOAT,
-                    waist_cm FLOAT,
-                    hip_cm FLOAT,
-                    metadata_json JSON,
-                    converted_to_customer_id INTEGER,
-                    converted_at DATETIME,
+                    plan VARCHAR(20) UNIQUE NOT NULL,
+                    price_monthly VARCHAR(50) DEFAULT '€0',
+                    price_annual VARCHAR(50) DEFAULT '€0',
+                    features JSON,
+                    is_active BOOLEAN DEFAULT 1,
+                    stripe_price_id_monthly VARCHAR(255),
+                    stripe_price_id_annual VARCHAR(255),
                     created_at DATETIME,
-                    updated_at DATETIME,
-                    FOREIGN KEY(converted_to_customer_id) REFERENCES users(id)
+                    updated_at DATETIME
                 )
+            """))
+
+        if "coupons" not in tables:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS coupons (
+                    id INTEGER PRIMARY KEY,
+                    code VARCHAR(50) UNIQUE NOT NULL,
+                    description VARCHAR(255),
+                    discount_percent INTEGER DEFAULT 0,
+                    discount_amount_cents INTEGER DEFAULT 0,
+                    max_uses INTEGER DEFAULT 0,
+                    current_uses INTEGER DEFAULT 0,
+                    expires_at DATETIME,
+                    is_active BOOLEAN DEFAULT 1,
+                    created_by INTEGER,
+                    created_at DATETIME,
+                    FOREIGN KEY(created_by) REFERENCES users(id)
+                )
+            """))
+
+        if "free_grants" not in tables:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS free_grants (
+                    id INTEGER PRIMARY KEY,
+                    user_id INTEGER NOT NULL,
+                    months INTEGER NOT NULL,
+                    reason VARCHAR(255),
+                    granted_by INTEGER,
+                    expires_at DATETIME,
+                    created_at DATETIME,
+                    FOREIGN KEY(user_id) REFERENCES users(id),
+                    FOREIGN KEY(granted_by) REFERENCES users(id)
+                )
+            """))
+
+        if "mass_messages" not in tables:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS mass_messages (
+                    id INTEGER PRIMARY KEY,
+                    subject VARCHAR(255) NOT NULL,
+                    html_body TEXT NOT NULL,
+                    status VARCHAR(20) DEFAULT 'draft',
+                    target_group VARCHAR(50),
+                    target_filter JSON,
+                    sent_count INTEGER DEFAULT 0,
+                    failed_count INTEGER DEFAULT 0,
+                    total_recipients INTEGER DEFAULT 0,
+                    created_by INTEGER,
+                    created_at DATETIME,
+                    sent_at DATETIME,
+                    FOREIGN KEY(created_by) REFERENCES users(id)
+                )
+            """))
+
+        if "mass_message_recipients" not in tables:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS mass_message_recipients (
+                    id INTEGER PRIMARY KEY,
+                    message_id INTEGER NOT NULL,
+                    user_email VARCHAR(255) NOT NULL,
+                    status VARCHAR(20) DEFAULT 'pending',
+                    sent_at DATETIME,
+                    error TEXT,
+                    FOREIGN KEY(message_id) REFERENCES mass_messages(id)
+                )
+            """))
+
+        if "opportunities" not in tables:
             """))
 
     Path("uploads/profiles").mkdir(parents=True, exist_ok=True)
@@ -128,12 +196,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Rate Limiting (100 req/min per IP)
+app.add_middleware(
+    RateLimiterMiddleware,
+    requests_per_minute=100,
+)
+
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(measurements.router, prefix="/api/measurements", tags=["measurements"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(subscriptions.router, prefix="/api/subscriptions", tags=["subscriptions"])
 app.include_router(calculate.router, prefix="/api", tags=["calculate"])
 app.include_router(opportunities.router, prefix="/api", tags=["opportunities"])
+app.include_router(admin_pricing.router, prefix="/api", tags=["admin-pricing"])
+app.include_router(admin_messages.router, prefix="/api", tags=["admin-messages"])
+app.include_router(admin_stats.router, prefix="/api/admin/stats", tags=["admin-stats"])
 app.mount("/uploads", StaticFiles(directory="uploads", check_dir=False), name="uploads")
 
 
