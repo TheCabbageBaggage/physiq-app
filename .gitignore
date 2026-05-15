@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.db
+*.db-shm
+*.db-wal
+.env
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+.next/
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# ML artifacts (generated)
+ml-service/models/
+ml-service/data/
