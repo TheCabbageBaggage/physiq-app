@@ -164,6 +164,28 @@ def run_startup_migrations() -> None:
                 )
             """))
 
+        if "audit_logs" not in tables:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS audit_logs (
+                    id INTEGER PRIMARY KEY,
+                    actor_user_id INTEGER,
+                    action VARCHAR(100) NOT NULL,
+                    resource_type VARCHAR(50) NOT NULL,
+                    resource_id VARCHAR(100),
+                    details_json JSON,
+                    created_at DATETIME,
+                    FOREIGN KEY(actor_user_id) REFERENCES users(id)
+                )
+            """))
+
+        # Performance indexes (SQLite/PostgreSQL compatible SQL)
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_users_created_at ON users (created_at)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_measurements_user_date ON measurements (user_id, date)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_opportunities_status_created ON opportunities (status, created_at)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_opportunities_converted_user ON opportunities (converted_to_customer_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_subscription_events_user_created ON subscription_events (user_id, created_at)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_audit_logs_actor_created ON audit_logs (actor_user_id, created_at)"))
+
     Path("uploads/profiles").mkdir(parents=True, exist_ok=True)
 
 

@@ -94,18 +94,17 @@ class SubscriptionEvent(Base):
 
 class Opportunity(Base):
     __tablename__ = "opportunities"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     uuid = Column(String(36), unique=True, nullable=False, default=lambda: str(uuid4()))
     email = Column(String(255), unique=True, nullable=False, index=True)
     name = Column(String(100), nullable=True)
-    status = Column(String(20), default="waiting")  # waiting, contacted, converted, expired
+    status = Column(String(20), default="waiting")
     referral_source = Column(String(100), nullable=True)
-    
-    # Calculator data - what they calculated at signup
-    calculated_kfa = Column(Float, nullable=True)  # body fat percent (ML corrected)
-    calculated_mma = Column(Float, nullable=True)  # muscle mass percent
-    calculated_body_fat_navy = Column(Float, nullable=True)  # raw navy formula
+
+    calculated_kfa = Column(Float, nullable=True)
+    calculated_mma = Column(Float, nullable=True)
+    calculated_body_fat_navy = Column(Float, nullable=True)
     height_cm = Column(Float, nullable=True)
     weight_kg = Column(Float, nullable=True)
     age = Column(Integer, nullable=True)
@@ -113,25 +112,24 @@ class Opportunity(Base):
     neck_cm = Column(Float, nullable=True)
     waist_cm = Column(Float, nullable=True)
     hip_cm = Column(Float, nullable=True)
-    
-    # Tracking
+
     metadata_json = Column(JSON, nullable=True)
     converted_to_customer_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     converted_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     converted_customer = relationship("User", foreign_keys=[converted_to_customer_id])
 
 
 class PricingConfig(Base):
     __tablename__ = "pricing_config"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    tier = Column(String(20), unique=True, nullable=False)  # basic, pro, enterprise
+    tier = Column(String(20), unique=True, nullable=False)
     name = Column(String(100), nullable=False)
     monthly_price_cents = Column(Integer, nullable=False, default=0)
-    annual_price_cents = Column(Integer, nullable=True)  # if None, annual not available
+    annual_price_cents = Column(Integer, nullable=True)
     currency = Column(String(3), default="EUR")
     trial_days = Column(Integer, default=0)
     features = Column(JSON, default=list)
@@ -143,15 +141,15 @@ class PricingConfig(Base):
 
 class Coupon(Base):
     __tablename__ = "coupons"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     code = Column(String(50), unique=True, nullable=False, index=True)
     description = Column(String(255), nullable=True)
-    discount_type = Column(String(20), nullable=False)  # percentage, fixed_amount
-    discount_value = Column(Integer, nullable=False)  # percent (0-100) or cents
-    applicable_tiers = Column(JSON, default=list)  # empty = all tiers
-    min_interval = Column(String(10), default="month")  # month, year
-    max_uses = Column(Integer, default=0)  # 0 = unlimited
+    discount_type = Column(String(20), nullable=False)
+    discount_value = Column(Integer, nullable=False)
+    applicable_tiers = Column(JSON, default=list)
+    min_interval = Column(String(10), default="month")
+    max_uses = Column(Integer, default=0)
     used_count = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
     valid_from = Column(DateTime, nullable=True)
@@ -161,7 +159,7 @@ class Coupon(Base):
 
 class UserFreeMonth(Base):
     __tablename__ = "user_free_months"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     months = Column(Integer, nullable=False, default=1)
@@ -170,7 +168,20 @@ class UserFreeMonth(Base):
     expires_at = Column(DateTime, nullable=True)
     used_count = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     user = relationship("User", foreign_keys=[user_id], backref="free_months")
     grantor = relationship("User", foreign_keys=[granted_by])
 
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    actor_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    action = Column(String(100), nullable=False, index=True)
+    resource_type = Column(String(50), nullable=False, index=True)
+    resource_id = Column(String(100), nullable=True, index=True)
+    details_json = Column(JSON, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    actor = relationship("User", foreign_keys=[actor_user_id])

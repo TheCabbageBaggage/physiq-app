@@ -16,6 +16,7 @@ from sqlalchemy import desc
 
 from ..database import get_db
 from ..models import Opportunity, User
+from ..audit import log_admin_action
 from .. import schemas, auth
 
 router = APIRouter()
@@ -193,6 +194,14 @@ def update_opportunity(
         opp.referral_source = updates.referral_source
 
     opp.updated_at = datetime.utcnow()
+    log_admin_action(
+        db,
+        actor=current_user,
+        action="opportunity.updated",
+        resource_type="opportunity",
+        resource_id=opp.uuid,
+        details={"name": opp.name, "referral_source": opp.referral_source},
+    )
     db.commit()
     db.refresh(opp)
 
@@ -212,6 +221,13 @@ def mark_contacted(
 
     opp.status = "contacted"
     opp.updated_at = datetime.utcnow()
+    log_admin_action(
+        db,
+        actor=current_user,
+        action="opportunity.contacted",
+        resource_type="opportunity",
+        resource_id=opp.uuid,
+    )
     db.commit()
 
     return {"success": True, "message": "Marked as contacted"}
@@ -246,6 +262,14 @@ def convert_to_customer(
     opp.converted_to_customer_id = user.id
     opp.converted_at = datetime.utcnow()
     opp.updated_at = datetime.utcnow()
+    log_admin_action(
+        db,
+        actor=current_user,
+        action="opportunity.converted",
+        resource_type="opportunity",
+        resource_id=opp.uuid,
+        details={"user_id": user.id, "email": user.email},
+    )
     db.commit()
 
     return {"success": True, "message": "Converted to customer", "user_id": user.id}
@@ -264,6 +288,13 @@ def delete_opportunity(
 
     opp.status = "expired"
     opp.updated_at = datetime.utcnow()
+    log_admin_action(
+        db,
+        actor=current_user,
+        action="opportunity.expired",
+        resource_type="opportunity",
+        resource_id=opp.uuid,
+    )
     db.commit()
 
     return {"success": True, "message": "Opportunity expired"}

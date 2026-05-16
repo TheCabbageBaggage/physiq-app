@@ -128,6 +128,21 @@ ACCESS_TOKEN_EXPIRE_MINUTES=1440
 # DATABASE_URL=postgresql+psycopg://user:password@localhost:5432/physiq
 ```
 
+## Database Operations
+
+### Run migrations (Alembic)
+```bash
+cd backend
+alembic upgrade head
+```
+
+### Backup and restore
+```bash
+cd backend
+./scripts/db_backup.sh
+./scripts/db_restore.sh ./backups/healthhub_YYYYMMDD_HHMMSS.db
+```
+
 ## License
 
 MIT License - see LICENSE file for details.

@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from .. import auth
 from ..database import SQLALCHEMY_DATABASE_URL, engine, get_db
 from ..ml_client import ml_get
-from ..models import Measurement, Opportunity, SubscriptionEvent, User
+from ..models import AuditLog, Measurement, Opportunity, SubscriptionEvent, User
 
 router = APIRouter()
 _STARTED_AT = datetime.now(timezone.utc)
@@ -101,4 +101,34 @@ def admin_overview(
                 for e in recent_subscription_events
             ],
         },
+    }
+
+
+@router.get("/api/admin/audit-logs")
+def list_audit_logs(
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(_require_admin),
+) -> dict[str, Any]:
+    safe_limit = max(1, min(limit, 200))
+    rows = (
+        db.query(AuditLog)
+        .order_by(AuditLog.created_at.desc())
+        .limit(safe_limit)
+        .all()
+    )
+    return {
+        "total": len(rows),
+        "items": [
+            {
+                "id": r.id,
+                "actor_user_id": r.actor_user_id,
+                "action": r.action,
+                "resource_type": r.resource_type,
+                "resource_id": r.resource_id,
+                "details": r.details_json or {},
+                "created_at": r.created_at,
+            }
+            for r in rows
+        ],
     }

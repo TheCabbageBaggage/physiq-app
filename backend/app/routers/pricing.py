@@ -16,6 +16,7 @@ from sqlalchemy import desc
 
 from ..database import get_db
 from ..models import PricingConfig, Coupon, UserFreeMonth, User
+from ..audit import log_admin_action
 from .. import schemas, auth
 
 router = APIRouter()
@@ -76,6 +77,14 @@ def create_pricing_tier(
         sort_order=data.sort_order,
     )
     db.add(config)
+    log_admin_action(
+        db,
+        actor=current_user,
+        action="pricing.created",
+        resource_type="pricing_tier",
+        resource_id=config.tier,
+        details=data.model_dump(),
+    )
     db.commit()
     db.refresh(config)
     return _pricing_to_response(config)
@@ -97,6 +106,14 @@ def update_pricing_tier(
     for key, value in update_data.items():
         setattr(config, key, value)
     config.updated_at = datetime.utcnow()
+    log_admin_action(
+        db,
+        actor=current_user,
+        action="pricing.updated",
+        resource_type="pricing_tier",
+        resource_id=config.tier,
+        details=update_data,
+    )
 
     db.commit()
     db.refresh(config)
@@ -113,6 +130,13 @@ def delete_pricing_tier(
     config = db.query(PricingConfig).filter(PricingConfig.tier == tier).first()
     if not config:
         raise HTTPException(status_code=404, detail=f"Tier '{tier}' not found")
+    log_admin_action(
+        db,
+        actor=current_user,
+        action="pricing.deleted",
+        resource_type="pricing_tier",
+        resource_id=config.tier,
+    )
     db.delete(config)
     db.commit()
     return {"detail": f"Tier '{tier}' deleted"}
@@ -179,6 +203,14 @@ def create_coupon(
         valid_until=data.valid_until,
     )
     db.add(coupon)
+    log_admin_action(
+        db,
+        actor=current_user,
+        action="coupon.created",
+        resource_type="coupon",
+        resource_id=coupon.code,
+        details=data.model_dump(),
+    )
     db.commit()
     db.refresh(coupon)
     return coupon
@@ -195,6 +227,13 @@ def deactivate_coupon(
     if not coupon:
         raise HTTPException(status_code=404, detail=f"Coupon '{code}' not found")
     coupon.is_active = False
+    log_admin_action(
+        db,
+        actor=current_user,
+        action="coupon.deactivated",
+        resource_type="coupon",
+        resource_id=coupon.code,
+    )
     db.commit()
     return {"detail": f"Coupon '{code}' deactivated"}
 
@@ -276,6 +315,14 @@ def grant_free_months(
         granted_by=current_user.id,
     )
     db.add(free_month)
+    log_admin_action(
+        db,
+        actor=current_user,
+        action="user.free_months_granted",
+        resource_type="user",
+        resource_id=str(user_id),
+        details={"months": data.months, "reason": data.reason},
+    )
     db.commit()
     db.refresh(free_month)
 

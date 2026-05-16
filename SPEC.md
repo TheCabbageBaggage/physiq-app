@@ -142,10 +142,10 @@ User Story 4.3: As a user, I can view complete payment history and invoices.
 3. Add reconciliation tooling and audit trail.
 
 ### Epic 5: Data Architecture Modernization
-Status: `IN PROGRESS`
+Status: `COMPLETED`
 
 User Story 5.1: As platform owner, database supports high concurrency and scale.
-- Status: `NOT COMPLETED`
+- Status: `COMPLETED`
 - Technical requirements:
 1. Migrate SQLite to PostgreSQL with migration tooling.
 2. Add indexes for auth, measurements, waitlist, subscription events.
@@ -159,10 +159,10 @@ User Story 5.2: As growth ops, waitlist conversion to customer is first-class wo
 3. Add reporting for conversion funnel.
 
 ### Epic 6: Admin And Operations Console
-Status: `IN PROGRESS`
+Status: `COMPLETED`
 
 User Story 6.1: As admin, I can view full operational dashboard.
-- Status: `PARTIALLY COMPLETED`
+- Status: `COMPLETED`
 - Technical requirements:
 1. User counts and cohort summaries.
 2. Measurement counters and growth trends.
@@ -171,11 +171,11 @@ User Story 6.1: As admin, I can view full operational dashboard.
 5. Database/system health telemetry.
 
 User Story 6.2: As admin, I can manage opportunities/pricing/coupons.
-- Status: `PARTIALLY COMPLETED`
+- Status: `COMPLETED`
 - Technical requirements:
 1. Opportunities list/update/convert endpoints (exists).
 2. Pricing/coupon/free-month endpoints (exists).
-3. Missing: cohesive admin UI and audit trail for all actions.
+3. Cohesive admin UI and audit trail for all actions.
 
 ### Epic 7: Security Hardening
 Status: `IN PROGRESS`
