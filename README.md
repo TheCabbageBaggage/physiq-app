@@ -41,9 +41,25 @@ cd healthhub-v2
 docker-compose up -d
 
 # Access the application
-# Frontend: http://localhost:3000
+# Frontend: http://localhost:3000/healthhub
 # Backend API: http://localhost:8000
+# ML Service: http://localhost:8001
 # API Docs: http://localhost:8000/docs
+```
+
+### Deployment Smoke Check
+```bash
+# Build and run
+docker compose up -d --build
+
+# Backend health (host-level)
+curl -fsS http://localhost:8000/health
+
+# ML service health (host-level)
+curl -fsS http://localhost:8001/health
+
+# Landing page (basePath-aware)
+curl -fsS http://localhost:3000/healthhub > /dev/null
 ```
 
 ### Development Setup

@@ -5,7 +5,7 @@ import MetricCard from '@/components/MetricCard'
 import RecentMeasurements from '@/components/RecentMeasurements'
 import TrendIndicator from '@/components/TrendIndicator'
 import { Activity, TrendingUp, Heart, Target } from 'lucide-react'
-import { apiUrl, getAuthToken, appPath } from '@/lib/api'
+import { apiUrl, getAuthToken, appPath, browserPath } from '@/lib/api'
 import dynamic from 'next/dynamic'
 import { useTranslation } from 'react-i18next'
 import i18n from '@/lib/i18n'
@@ -44,7 +44,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
-    if (!token) window.location.href = appPath('/')
+    if (!token) window.location.href = browserPath('/')
   }, [])
 
   useEffect(() => {

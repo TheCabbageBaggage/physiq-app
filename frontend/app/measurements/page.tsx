@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import MeasurementForm from '@/components/MeasurementForm'
 import MeasurementTable from '@/components/MeasurementTable'
-import { apiUrl, getAuthToken, appPath } from '@/lib/api'
+import { apiUrl, getAuthToken, browserPath } from '@/lib/api'
 import { Download, Filter, Plus, UploadCloud } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -15,7 +15,7 @@ export default function MeasurementsPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
-    if (!token) window.location.href = appPath('/')
+    if (!token) window.location.href = browserPath('/')
   }, [])
 
   const handleExportCsv = async () => {

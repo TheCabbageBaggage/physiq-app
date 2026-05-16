@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { AlertCircle, Loader2, TrendingDown, TrendingUp, Minus } from 'lucide-react'
-import { apiUrl, getAuthToken, appPath } from '@/lib/api'
+import { apiUrl, getAuthToken, browserPath } from '@/lib/api'
 import ChartComponent from '@/components/ChartComponent'
 import FeatureGuard from '@/components/FeatureGuard'
 import { useTranslation } from 'react-i18next'
@@ -51,7 +51,7 @@ export default function PredictionsPage() {
   useEffect(() => {
     const token = getAuthToken()
     if (!token) {
-      window.location.href = appPath('/')
+      window.location.href = browserPath('/')
       return
     }
 

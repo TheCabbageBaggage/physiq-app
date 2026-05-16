@@ -12,7 +12,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException
 
 from .. import schemas
-from ..ml_client import cached_ml_post
+from ..ml_client import cached_ml_post, ml_get
 
 router = APIRouter()
 
@@ -206,3 +206,14 @@ def calculate_body_composition(payload: schemas.CalculateRequest):
             composition=composition,
             source="navy_only",
         )
+
+
+@router.get("/calculate/availability", response_model=schemas.CalculateAvailabilityResponse)
+def calculator_availability():
+    health = ml_get("/health")
+    ml_available = bool(health and health.get("status") == "healthy")
+    return schemas.CalculateAvailabilityResponse(
+        ml_available=ml_available,
+        ml_service_url=ML_SERVICE_URL,
+        ml_model_version=health.get("model_version") if health else None,
+    )

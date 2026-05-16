@@ -25,6 +25,16 @@ def _post_json(path: str, payload: dict[str, Any]) -> dict[str, Any]:
         content = resp.read().decode("utf-8")
         return json.loads(content)
 
+def _get_json(path: str) -> dict[str, Any]:
+    req = request.Request(
+        f"{ML_SERVICE_URL}{path}",
+        headers={"Accept": "application/json"},
+        method="GET",
+    )
+    with request.urlopen(req, timeout=ML_TIMEOUT_SECONDS) as resp:
+        content = resp.read().decode("utf-8")
+        return json.loads(content)
+
 
 def _cache_key(path: str, payload: dict[str, Any]) -> str:
     return f"{path}:{json.dumps(payload, sort_keys=True, default=str)}"
@@ -43,5 +53,12 @@ def cached_ml_post(path: str, payload: dict[str, Any]) -> dict[str, Any] | None:
         value = _post_json(path, payload)
         _cache[key] = (now, value)
         return value
+    except (error.URLError, error.HTTPError, TimeoutError, ValueError):
+        return None
+
+
+def ml_get(path: str) -> dict[str, Any] | None:
+    try:
+        return _get_json(path)
     except (error.URLError, error.HTTPError, TimeoutError, ValueError):
         return None

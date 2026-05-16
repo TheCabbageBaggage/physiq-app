@@ -12,6 +12,14 @@ export type SubscriptionInfo = {
   features: string[]
 }
 
+export type SubscriptionHistoryItem = {
+  stripe_event_id: string
+  event_type: string
+  created_at: string | null
+  stripe_customer_id: string | null
+  stripe_subscription_id: string | null
+}
+
 const PLAN_LEVELS: Record<PlanType, number> = {
   free: 0,
   pro: 1,
@@ -44,5 +52,17 @@ export async function fetchSubscriptionStatus(): Promise<SubscriptionInfo> {
     return DEFAULT_SUBSCRIPTION
   }
 
+  return res.json()
+}
+
+export async function fetchSubscriptionHistory(limit = 30): Promise<SubscriptionHistoryItem[]> {
+  const token = getAuthToken()
+  if (!token) return []
+
+  const res = await fetch(apiUrl(`/subscriptions/history?limit=${limit}`), {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+  if (!res.ok) return []
   return res.json()
 }

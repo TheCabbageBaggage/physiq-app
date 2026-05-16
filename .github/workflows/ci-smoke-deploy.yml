@@ -1,0 +1,77 @@
+name: CI Smoke Deploy
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build services
+        run: docker compose build
+
+      - name: Start services
+        run: docker compose up -d
+
+      - name: Wait for backend health (host)
+        run: ./scripts/wait_for_http.sh "http://localhost:8000/health" "backend-health" 240 2
+
+      - name: Wait for frontend landing path (host)
+        run: ./scripts/wait_for_http.sh "http://localhost:3000/healthhub" "frontend-healthhub" 240 2
+
+      - name: Verify landing auth links use correct base path
+        run: |
+          curl --fail --silent --show-error "http://localhost:3000/healthhub" > /tmp/landing.html
+          grep -q 'href="/healthhub/login"' /tmp/landing.html
+          grep -q 'href="/healthhub/register"' /tmp/landing.html
+
+      - name: Verify waitlist submission flow
+        run: |
+          EMAIL="ci-waitlist-$GITHUB_RUN_ID@example.com"
+          curl --fail --silent --show-error \
+            -X POST "http://localhost:8000/api/opportunities" \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"${EMAIL}\",\"name\":\"CI\",\"referral_source\":\"ci\"}" > /tmp/opportunity.json
+          grep -q '"success":true' /tmp/opportunity.json
+          curl --fail --silent --show-error \
+            "http://localhost:8000/api/opportunities/check/${EMAIL}" > /tmp/opportunity-check.json
+          grep -q '"exists":true' /tmp/opportunity-check.json
+
+      - name: Verify calculator uses ML when available
+        run: |
+          curl --fail --silent --show-error \
+            -X POST "http://localhost:8000/api/calculate" \
+            -H "Content-Type: application/json" \
+            -d '{"gender":"male","age":35,"height_cm":180,"weight_kg":82,"neck_cm":40,"waist_cm":92,"activity_level":"moderate"}' > /tmp/calc-ml.json
+          grep -q '"source":"ml"' /tmp/calc-ml.json
+
+      - name: Verify calculator fallback when ML is unavailable
+        run: |
+          docker compose stop ml-service
+          curl --fail --silent --show-error \
+            -X POST "http://localhost:8000/api/calculate" \
+            -H "Content-Type: application/json" \
+            -d '{"gender":"male","age":35,"height_cm":180,"weight_kg":82,"neck_cm":40,"waist_cm":93,"activity_level":"moderate"}' > /tmp/calc-fallback.json
+          grep -q '"source":"navy_only"' /tmp/calc-fallback.json
+
+      - name: Docker compose status
+        if: always()
+        run: docker compose ps
+
+      - name: Backend logs on failure
+        if: failure()
+        run: docker compose logs --no-color backend
+
+      - name: Frontend logs on failure
+        if: failure()
+        run: docker compose logs --no-color frontend
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

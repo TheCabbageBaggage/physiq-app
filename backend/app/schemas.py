@@ -256,6 +256,15 @@ class StripeWebhookResponse(BaseModel):
     status: str
     message: str
 
+
+class SubscriptionHistoryItem(BaseModel):
+    stripe_event_id: str
+    event_type: str
+    created_at: Optional[datetime] = None
+    stripe_customer_id: Optional[str] = None
+    stripe_subscription_id: Optional[str] = None
+
+
 class OpportunityCreate(BaseModel):
     email: EmailStr
     name: Optional[str] = None
@@ -320,6 +329,12 @@ class CalculateResponse(BaseModel):
     confidence_score: float
     composition: dict
     source: str  # "ml" or "navy_only"
+
+
+class CalculateAvailabilityResponse(BaseModel):
+    ml_available: bool
+    ml_service_url: str
+    ml_model_version: Optional[str] = None
 
 
 # ============ PRICING & COUPONS SCHEMAS ============
@@ -416,4 +431,3 @@ class CouponValidateResponse(BaseModel):
 class GrantFreeMonthsRequest(BaseModel):
     months: int = Field(..., ge=1, le=120)
     reason: Optional[str] = Field(None, max_length=255)
-

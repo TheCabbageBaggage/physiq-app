@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import stripe
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 
 from .. import auth, schemas
 from ..database import get_db
@@ -68,6 +69,23 @@ def get_subscription_status(current_user: User = Depends(auth.get_current_active
         "stripe_subscription_id": current_user.stripe_subscription_id,
         "features": PLAN_FEATURES.get(current_user.plan_type or "free", PLAN_FEATURES["free"]),
     }
+
+
+@router.get("/history", response_model=list[schemas.SubscriptionHistoryItem])
+def get_subscription_history(
+    limit: int = 30,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth.get_current_active_user),
+):
+    safe_limit = max(1, min(limit, 200))
+    events = (
+        db.query(SubscriptionEvent)
+        .filter(SubscriptionEvent.user_id == current_user.id)
+        .order_by(desc(SubscriptionEvent.created_at))
+        .limit(safe_limit)
+        .all()
+    )
+    return events
 
 
 @router.post("/create-checkout", response_model=schemas.CreateCheckoutResponse)

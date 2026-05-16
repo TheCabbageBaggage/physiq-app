@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { apiUrl, getAuthToken, appPath } from '@/lib/api'
+import { apiUrl, getAuthToken, appPath, browserPath } from '@/lib/api'
 import { DEFAULT_SUBSCRIPTION, fetchSubscriptionStatus, type PlanType } from '@/lib/subscription'
 import { useTranslation } from 'react-i18next'
 
@@ -53,7 +53,7 @@ export default function PricingPage() {
   async function startCheckout(plan_type: 'pro' | 'enterprise') {
     const token = getAuthToken()
     if (!token) {
-      window.location.href = appPath('/')
+      window.location.href = browserPath('/')
       return
     }
 
@@ -70,8 +70,8 @@ export default function PricingPage() {
         },
         body: JSON.stringify({
           plan_type,
-          success_url: `${appUrl}${appPath('/pricing')}?checkout=success`,
-          cancel_url: `${appUrl}${appPath('/pricing')}?checkout=cancel`,
+          success_url: `${appUrl}${browserPath('/pricing')}?checkout=success`,
+          cancel_url: `${appUrl}${browserPath('/pricing')}?checkout=cancel`,
         }),
       })
 

@@ -1,170 +1,203 @@
-# HealthHub v2 - Technical Specification
+# PhysIQ App Specification And Assessment (2026-05-16)
 
-## Overview
-HealthHub v2 is a self-hosted health tracking platform with a FastAPI backend and Next.js 14 frontend. It provides body composition tracking, progress visualization, and simple predictive analytics.
+## Coding Rules (Always)
+1. Security first: validate all input server-side and fail closed.
+2. No secrets in code or images; use environment variables and secret managers.
+3. Reproducible deployment: Docker images must build and run from `main`.
+4. API contracts are versioned and documented before UI integration.
+5. Every feature must include automated tests (unit + integration where applicable).
+6. No breaking DB schema changes without migration scripts and rollback steps.
+7. Observability is required: logs, metrics, health checks, and error tracing.
+8. Least privilege for database, API, and admin actions.
+9. Performance budgets for core endpoints and pages are enforced in CI.
+10. Accessibility and responsive behavior are required for all frontend flows.
 
-## Architecture
+## Executive Findings
+- `Pull latest`: completed (`git pull --rebase --autostash`).
+- Docker build/run from pulled branch was **not operational by default**:
+  - missing `backend/Dockerfile` and `frontend/Dockerfile`
+  - backend runtime missing `email-validator`
+  - backend binds to `127.0.0.1` in container (`backend/run.py`), so host access to `:8000` fails.
+- Landing page is available at `/healthhub` (basePath), not `/`.
+- Landing calculator is **browser-local** and does **not call backend/ML API**.
+- Waitlist API writes entries to SQLite table `opportunities` in `backend/healthhub.db`.
+- Extended app functionality exists partially (login, measurements, charts, subscription scaffolding), but enterprise-grade ops/admin/security architecture is incomplete.
 
-### Backend (FastAPI)
-- **Framework**: FastAPI with SQLAlchemy ORM
-- **Database**: SQLite (file-based, easy deployment)
-- **Authentication**: JWT (JSON Web Tokens)
-- **API Style**: RESTful with OpenAPI documentation
+## Answers To Requested Questions
+1. Is the landing page ready and operational?
+- Partially.
+- Render works at `http://localhost:3001/healthhub` in container run.
+- `http://localhost:3001/` returns 404 by design (Next.js `basePath: /healthhub`).
+- Auth links are currently malformed (`/healthhub/healthhub/login` style) due double base path composition.
 
-### Frontend (Next.js 14)
-- **Framework**: Next.js 14 with App Router
-- **Styling**: TailwindCSS with custom design system
-- **State Management**: React Query for server state
-- **Icons**: Lucide React for consistent iconography
+2. Does the calculator work on the landing page using the API of the physiq ml model?
+- No.
+- Landing calculator (`frontend/components/calculator/BodyCompositionCalculator.tsx`) computes locally in JS and claims local-only processing.
+- Backend `/api/calculate` exists and can call ML service, but ML service is not part of current compose stack, and tested response source is `navy_only` fallback.
 
-## Database Schema
+3. Does the waitlist work? Where does the waitlist write entries?
+- Backend waitlist endpoint works (`POST /api/opportunities`) when called internally in container.
+- Entries are persisted in SQLite file `backend/healthhub.db`, table `opportunities`.
+- Frontend waitlist likely misses local backend in production build because `NEXT_PUBLIC_API_URL` is not baked consistently and defaults to remote URL in `frontend/lib/api.ts`.
 
-### User Table
-- `id`: Integer (Primary Key)
-- `email`: String (Unique)
-- `hashed_password`: String
-- `full_name`: String
-- `created_at`: DateTime
-- `updated_at`: DateTime
+4. Does extended functionality exist (login, history charts, settings, payments)?
+- Yes, partially.
+- Present: register/login/profile/settings, measurements, charts, prediction/recommendation pages, Stripe subscription endpoints/scaffolding.
+- Missing/incomplete: coherent full payment history UX, robust admin operations suite, hardened production-grade flows.
 
-### Measurement Table
-- `id`: Integer (Primary Key)
-- `user_id`: Integer (Foreign Key to User)
-- `date`: Date
-- `weight_kg`: Float
-- `body_fat_percentage`: Float
-- `muscle_mass_kg`: Float
-- `water_percentage`: Float
-- `bone_mass_kg`: Float
-- `visceral_fat`: Integer
-- `bmi`: Float
-- `metabolic_age`: Integer
-- `notes`: Text (Optional)
-- `created_at`: DateTime
+5. Does a performant state-of-the-art DB exist, connected to waitlist and conversion?
+- No (not state-of-the-art for scale).
+- Current DB is SQLite (single-file), acceptable for local MVP, not ideal for high concurrency/scalability.
+- Waitlist-to-user conversion model exists (`opportunities.converted_to_customer_id`) and admin conversion endpoint exists.
 
-## API Endpoints
+6. Does an admin backend exist with full operational overview?
+- Not fully.
+- Exists: admin endpoints for opportunities and pricing/coupons/free-month grants.
+- Missing: comprehensive admin UI/backend for all requested observability domains (full users overview, measurement counters dashboard, API health suite, payment ledger, DB/system health console).
 
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login (returns JWT)
-- `POST /api/auth/refresh` - Refresh JWT token
+7. Is architecture based on state-of-the-art scalable microservices?
+- Not currently.
+- Architecture is a modular monolith (FastAPI + Next.js + optional ML service), not a production microservice platform.
+- Missing core production characteristics: service discovery, async messaging, distributed tracing, autoscaling-oriented data plane design.
 
-### Measurements
-- `GET /api/measurements` - List all measurements for authenticated user
-- `GET /api/measurements/{id}` - Get specific measurement
-- `POST /api/measurements` - Create new measurement
-- `PUT /api/measurements/{id}` - Update measurement
-- `DELETE /api/measurements/{id}` - Delete measurement
+8. Is app and DB design secure?
+- Partially; significant gaps remain.
+- Positives: JWT auth, ORM usage, some rate limiting, typed validation.
+- Gaps: insecure defaults and deployment blockers (local bind in container, weak default secret fallback, in-memory rate limiting, SQLite for production scale, incomplete operational hardening and audit controls).
 
-### Analytics
-- `GET /api/analytics/stats` - Get summary statistics (totals, averages, trends)
-- `GET /api/analytics/predictions` - Get 90-day projections based on current trends
-- `GET /api/analytics/recommendations` - Get personalized trainer recommendations
+## Epic Backlog
 
-## Frontend Components
+### Epic 1: Deployment Reliability
+Status: `COMPLETED`
 
-### Layout
-- **Sidebar Navigation**: Dark theme (#1A1A1A) with navigation links
-- **Header**: User profile, notifications, logout
-- **Main Content Area**: Responsive grid layout
+User Story 1.1: As an operator, I can build and run the stack from `main` with one command.
+- Status: `COMPLETED`
+- Technical requirements:
+1. Provide valid `backend/Dockerfile` and `frontend/Dockerfile`.
+2. Ensure runtime dependencies include all required packages (`email-validator` for `EmailStr`).
+3. CI smoke test must execute `docker compose build && docker compose up`.
 
-### Pages
-1. **Dashboard** (`/`)
-   - Overview cards with key metrics
-   - Recent measurements timeline
-   - Progress charts
+User Story 1.2: As an operator, I can access backend from host through Docker port mapping.
+- Status: `COMPLETED`
+- Technical requirements:
+1. Bind uvicorn host to `0.0.0.0` in container runtime.
+2. Add automated container health probe from host network.
+3. Fail CI if health endpoint unreachable from host.
 
-2. **Measurements** (`/measurements`)
-   - Data entry form
-   - Measurement history table
-   - Export functionality
+### Epic 2: Landing And Acquisition Integrity
+Status: `COMPLETED`
 
-3. **Predictions** (`/predictions`)
-   - 90-day projection charts
-   - Goal setting interface
-   - Milestone tracking
+User Story 2.1: As a visitor, all landing links navigate correctly under base path.
+- Status: `COMPLETED`
+- Technical requirements:
+1. Fix path composition to avoid duplicated `/healthhub`.
+2. Add route tests for `/healthhub`, `/healthhub/login`, `/healthhub/register`.
 
-4. **Recommendations** (`/recommendations`)
-   - Personalized trainer advice
-   - Exercise suggestions
-   - Nutrition tips
+User Story 2.2: As a visitor, waitlist submission reaches the intended environment backend.
+- Status: `COMPLETED`
+- Technical requirements:
+1. Ensure `NEXT_PUBLIC_API_BASE` is environment-specific at build/deploy.
+2. Add synthetic test that submits waitlist and validates DB insertion.
+3. Expose explicit runtime diagnostics for API base in non-production.
 
-## Design System
+### Epic 3: Calculator And ML Integration
+Status: `COMPLETED`
 
-### Colors
-- **Primary**: #0066CC (Blue)
-- **Secondary**: #1A1A1A (Dark sidebar)
-- **Background**: #FFFFFF (Light mode), #0F0F0F (Dark mode)
-- **Text**: #333333 (Light mode), #E0E0E0 (Dark mode)
-- **Success**: #10B981 (Green)
-- **Warning**: #F59E0B (Amber)
-- **Error**: #EF4444 (Red)
+User Story 3.1: As a visitor, calculator can run local-only or server-ML mode with clear labeling.
+- Status: `COMPLETED`
+- Technical requirements:
+1. Define explicit mode switch and trust messaging in UI.
+2. If server mode selected, call `/api/calculate` and show `source` from response.
+3. Include ML availability indicator and fallback behavior.
 
-### Typography
-- **Font Family**: Inter (system font stack)
-- **Base Size**: 16px
-- **Scale**: 0.75, 0.875, 1, 1.125, 1.25, 1.5, 1.875, 2.25, 3, 3.75, 4.5
+User Story 3.2: As product owner, ML service is integrated in compose for deterministic environments.
+- Status: `COMPLETED`
+- Technical requirements:
+1. Add ML service to root compose with health checks.
+2. Wire `ML_SERVICE_URL` to internal Docker network.
+3. Add integration tests for `source=ml` and fallback mode.
 
-## Security
+### Epic 4: User Platform Features
+Status: `IN PROGRESS`
 
-### Authentication
-- Password hashing with bcrypt
-- JWT tokens with 24-hour expiry
-- Refresh token mechanism
-- Rate limiting on auth endpoints
+User Story 4.1: As a user, I can register/login and manage profile/settings.
+- Status: `COMPLETED`
+- Technical requirements:
+1. JWT auth endpoints and frontend flows.
+2. Profile read/update endpoints and UI.
+3. Input validation and password hashing.
 
-### Data Protection
-- SQL injection prevention via SQLAlchemy
-- XSS protection via React sanitization
-- CORS configuration for frontend access
-- Input validation with Pydantic
+User Story 4.2: As a user, I can track measurements and visualize trends/history.
+- Status: `COMPLETED`
+- Technical requirements:
+1. CRUD measurements endpoints.
+2. Chart endpoints and frontend chart views.
+3. Plan gating for premium features.
 
-## Deployment
+User Story 4.3: As a user, I can view complete payment history and invoices.
+- Status: `PARTIALLY COMPLETED`
+- Technical requirements:
+1. Persist payment events in normalized ledger tables.
+2. Add user-facing payment history and invoice list.
+3. Add reconciliation tooling and audit trail.
 
-### Docker Compose
-- Backend service: FastAPI on port 8000
-- Frontend service: Next.js on port 3000
-- Volume mapping for SQLite database
-- Environment variable configuration
+### Epic 5: Data Architecture Modernization
+Status: `NOT COMPLETED`
 
-### Environment Variables
-- `DATABASE_URL`: SQLite database path
-- `SECRET_KEY`: JWT secret key
-- `ALLOWED_ORIGINS`: CORS allowed origins
-- `NODE_ENV`: Production/development mode
+User Story 5.1: As platform owner, database supports high concurrency and scale.
+- Status: `NOT COMPLETED`
+- Technical requirements:
+1. Migrate SQLite to PostgreSQL with migration tooling.
+2. Add indexes for auth, measurements, waitlist, subscription events.
+3. Add backup/restore and retention strategy.
 
-## Development Setup
+User Story 5.2: As growth ops, waitlist conversion to customer is first-class workflow.
+- Status: `PARTIALLY COMPLETED`
+- Technical requirements:
+1. Keep FK link `opportunities.converted_to_customer_id` (exists).
+2. Add auto-link on successful registration by matching email.
+3. Add reporting for conversion funnel.
 
-### Backend
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
+### Epic 6: Admin And Operations Console
+Status: `NOT COMPLETED`
 
-### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
+User Story 6.1: As admin, I can view full operational dashboard.
+- Status: `NOT COMPLETED`
+- Technical requirements:
+1. User counts and cohort summaries.
+2. Measurement counters and growth trends.
+3. API health and dependency status panel.
+4. Payment and subscription overview.
+5. Database/system health telemetry.
 
-## Future Enhancements
+User Story 6.2: As admin, I can manage opportunities/pricing/coupons.
+- Status: `PARTIALLY COMPLETED`
+- Technical requirements:
+1. Opportunities list/update/convert endpoints (exists).
+2. Pricing/coupon/free-month endpoints (exists).
+3. Missing: cohesive admin UI and audit trail for all actions.
 
-### Phase 2
-- Mobile app (React Native)
-- Webhook integrations (Fitbit, Apple Health)
-- Advanced analytics (machine learning models)
-- Social features (challenges, leaderboards)
+### Epic 7: Security Hardening
+Status: `IN PROGRESS`
 
-### Phase 3
-- Multi-user support (trainer/client relationships)
-- Subscription management
-- Advanced reporting (PDF generation)
-- API rate limiting tiers
+User Story 7.1: As security owner, deployment uses secure defaults.
+- Status: `NOT COMPLETED`
+- Technical requirements:
+1. Remove weak default secrets.
+2. Enforce strong secret validation at boot.
+3. Harden CORS and trusted origins per environment.
 
-## File Structure Reference
+User Story 7.2: As security owner, platform has robust abuse protection and observability.
+- Status: `NOT COMPLETED`
+- Technical requirements:
+1. Replace in-memory rate limiting with shared backend (Redis or API gateway).
+2. Add structured security logs and alerting.
+3. Add SAST/DAST + dependency scanning in CI.
 
-See individual file comments for implementation details. Each file contains placeholder documentation explaining its purpose and required functionality.
+## Completed In This Assessment Cycle
+- Pulled latest branch changes.
+- Performed repository/code architecture analysis.
+- Built Docker images and ran containers.
+- Identified and documented blocking runtime issues.
+- Added missing container files and backend dependency required for startup.
+- Validated landing rendering, calculator behavior, waitlist DB persistence path.

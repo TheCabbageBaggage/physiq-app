@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE = 'https://dashboard.claw.lkohl.duckdns.org/api'
+const DEFAULT_API_BASE = 'http://localhost:8000/api'
 
 const apiFromBase = process.env.NEXT_PUBLIC_API_BASE
 const apiFromUrl = process.env.NEXT_PUBLIC_API_URL
@@ -13,7 +13,16 @@ export function apiUrl(path: string) {
 
 export function appPath(path: string) {
   const normalized = path.startsWith('/') ? path : `/${path}`
+  // For next/link and next/router: Next.js applies basePath automatically.
+  return normalized
+}
+
+export function browserPath(path: string) {
+  const normalized = path.startsWith('/') ? path : `/${path}`
   if (!APP_BASE_PATH || APP_BASE_PATH === '/') return normalized
+  if (normalized === APP_BASE_PATH || normalized.startsWith(`${APP_BASE_PATH}/`)) {
+    return normalized
+  }
   return `${APP_BASE_PATH}${normalized}`
 }
 
