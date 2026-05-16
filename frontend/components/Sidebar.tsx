@@ -74,24 +74,24 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
       />
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen w-72 flex-col border-r border-[var(--line-soft)] bg-white transition-transform duration-200 md:translate-x-0 ${
+        className={`fixed left-0 top-0 z-50 flex h-screen w-72 flex-col border-r border-slate-200 bg-slate-950 text-slate-100 transition-transform duration-200 md:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-16 items-center justify-between border-b border-[var(--line-soft)] px-4">
+        <div className="flex h-16 items-center justify-between border-b border-slate-800 px-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl shadow-sm gradient-primary">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 shadow-sm">
               <Activity className="h-4 w-4 text-white" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">{t('navigation.app_name')}</p>
-              <p className="text-xs text-slate-500">{t('navigation.app_tagline')}</p>
+              <p className="text-sm font-semibold text-white">{t('navigation.app_name')}</p>
+              <p className="text-xs text-slate-400">{t('navigation.app_tagline')}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-600 md:hidden"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 text-slate-300 md:hidden"
             aria-label={t('navigation.close_menu')}
           >
             <X className="h-4 w-4" />
@@ -108,23 +108,23 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                 onClick={onClose}
                 className={`group flex items-center rounded-xl border px-3 py-2.5 transition ${
                   isActive
-                    ? "border-blue-100 bg-blue-50 text-blue-700"
-                    : "border-transparent text-slate-600 hover:bg-white hover:text-[var(--brand-900)]"
+                    ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-200"
+                    : "border-transparent text-slate-300 hover:bg-slate-900 hover:text-white"
                 }`}
                 title={item.label}
               >
                 <item.icon className="h-5 w-5" />
                 <span className="ml-3 text-sm font-medium">{item.label}</span>
-                {item.locked && <span className="ml-2 text-xs text-amber-600">{t('navigation.upgrade')}</span>}
+                {item.locked && <span className="ml-2 text-xs text-amber-300">{t('navigation.upgrade')}</span>}
               </Link>
             )
           })}
         </nav>
 
-        <div className="border-t border-slate-200 p-3">
+        <div className="border-t border-slate-800 p-3">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center rounded-xl border border-transparent px-3 py-2.5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+            className="flex w-full items-center rounded-xl border border-transparent px-3 py-2.5 text-slate-300 transition hover:bg-slate-900 hover:text-white"
             title={t('common.logout')}
           >
             <LogOut className="h-5 w-5" />
