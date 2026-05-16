@@ -53,7 +53,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex-1 flex flex-col min-w-0">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+        <main className="flex-1 p-4 md:p-6">
+          <div className="mx-auto w-full max-w-7xl">{children}</div>
+        </main>
         <footer className="border-t border-[var(--line-soft)] px-4 py-4 md:px-6 text-xs md:text-sm text-slate-600">
           Physiq v2 &copy; {new Date().getFullYear()}
         </footer>

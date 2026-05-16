@@ -18,9 +18,9 @@
     --brand-500: #0066cc;
     --brand-100: #cce0ff;
     --brand-50: #e6f0ff;
-    --surface-0: #f9fafb;
+    --surface-0: #f6f8fc;
     --surface-1: #ffffff;
-    --line-soft: #e5e7eb;
+    --line-soft: #dbe3ef;
     --text-main: #111827;
   }
   
@@ -160,6 +160,16 @@
 }
 
 /* Unified app-wide skin for all authenticated sub-pages */
+.physiq-theme {
+  color: #0f172a;
+}
+
+.physiq-theme h1,
+.physiq-theme h2,
+.physiq-theme h3 {
+  letter-spacing: -0.01em;
+}
+
 .physiq-theme .bg-white.rounded-xl.shadow,
 .physiq-theme .bg-white.rounded-xl.shadow-xl,
 .physiq-theme .rounded-xl.bg-white.p-6.shadow,
@@ -169,7 +179,7 @@
 .physiq-theme .bg-white.rounded-xl.shadow.p-4 {
   background: #fff;
   border: 1px solid var(--line-soft);
-  box-shadow: 0 8px 24px rgba(26, 52, 64, 0.08);
+  box-shadow: 0 12px 30px -16px rgba(15, 23, 42, 0.3);
 }
 
 .physiq-theme .bg-blue-600 {
@@ -194,4 +204,32 @@
 
 .physiq-theme .bg-blue-50 {
   background: #eff6ff !important;
+}
+
+.physiq-theme input,
+.physiq-theme select,
+.physiq-theme textarea {
+  border-color: var(--line-soft) !important;
+  border-radius: 0.7rem;
+}
+
+.physiq-theme input:focus,
+.physiq-theme select:focus,
+.physiq-theme textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.18);
+}
+
+.physiq-theme .border-gray-200,
+.physiq-theme .border-gray-300 {
+  border-color: var(--line-soft) !important;
+}
+
+.physiq-theme .text-gray-900 {
+  color: #0f172a !important;
+}
+
+.physiq-theme .text-gray-700,
+.physiq-theme .text-gray-600 {
+  color: #334155 !important;
 }
