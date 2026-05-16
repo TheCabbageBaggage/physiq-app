@@ -11,6 +11,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
 
   const normalized = pathname?.startsWith('/healthhub') ? pathname.replace('/healthhub', '') || '/' : pathname
@@ -30,6 +31,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     syncLanguageFromProfile()
   }, [pathname, isAuthPage, router])
 
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebarCollapsed')
+    setSidebarCollapsed(saved === '1')
+  }, [])
+
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev
+      localStorage.setItem('sidebarCollapsed', next ? '1' : '0')
+      return next
+    })
+  }
+
   // Show loading while checking auth
   if (isAuthenticated === null && !isAuthPage) {
     return (
@@ -45,8 +59,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="app-backdrop physiq-theme flex min-h-screen">
-      <div className="hidden md:flex md:w-72 md:shrink-0">
-        <Sidebar />
+      <div className={`hidden md:flex md:shrink-0 ${sidebarCollapsed ? 'md:w-20' : 'md:w-72'}`}>
+        <Sidebar collapsed={sidebarCollapsed} onToggleCollapse={toggleSidebarCollapse} />
       </div>
 
       <Sidebar mobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />

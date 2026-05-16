@@ -5,12 +5,10 @@ import MetricCard from '@/components/MetricCard'
 import RecentMeasurements from '@/components/RecentMeasurements'
 import TrendIndicator from '@/components/TrendIndicator'
 import { Activity, TrendingUp, Heart, Target } from 'lucide-react'
-import { apiUrl, getAuthToken, appPath, browserPath } from '@/lib/api'
+import { apiUrl, getAuthToken, browserPath } from '@/lib/api'
 import dynamic from 'next/dynamic'
 import { useTranslation } from 'react-i18next'
 import i18n from '@/lib/i18n'
-import Link from 'next/link'
-import { DEFAULT_SUBSCRIPTION, fetchSubscriptionStatus, hasPlanAccess, type SubscriptionInfo } from '@/lib/subscription'
 
 const ChartComponent = dynamic(() => import('@/components/ChartComponent'), { ssr: false })
 
@@ -35,7 +33,6 @@ export default function DashboardPage() {
   })
   const [stats, setStats] = useState<any>(null)
   const [latestMeasurement, setLatestMeasurement] = useState<any>(null)
-  const [subscription, setSubscription] = useState<SubscriptionInfo>(DEFAULT_SUBSCRIPTION)
 
   const METRICS = useMemo<MetricOption[]>(() => [
     { key: 'weight', label: t('measurements.weight'), unit: 'kg', color: '#2563eb' },
@@ -45,10 +42,6 @@ export default function DashboardPage() {
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) window.location.href = browserPath('/')
-  }, [])
-
-  useEffect(() => {
-    fetchSubscriptionStatus().then(setSubscription).catch(() => setSubscription(DEFAULT_SUBSCRIPTION))
   }, [])
 
   useEffect(() => {
@@ -260,30 +253,9 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2" />
-        <div className="space-y-6">
-          {!hasPlanAccess(subscription.plan_type, subscription.subscription_status, 'pro') && (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.unlock_predictions')}</h3>
-              <p className="text-gray-700 mt-1">{t('dashboard.predictions_description')}</p>
-              <Link href={appPath('/pricing')} className="inline-block mt-3 rounded-lg bg-blue-600 px-4 py-2 text-white">{t('dashboard.upgrade_to_pro')}</Link>
-            </div>
-          )}
-
-          {!hasPlanAccess(subscription.plan_type, subscription.subscription_status, 'enterprise') && (
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.unlock_coaching')}</h3>
-              <p className="text-gray-700 mt-1">{t('dashboard.coaching_description')}</p>
-              <Link href={appPath('/pricing')} className="inline-block mt-3 rounded-lg bg-purple-600 px-4 py-2 text-white">{t('dashboard.upgrade_to_enterprise')}</Link>
-            </div>
-          )}
-
-          <div className="bg-white rounded-xl shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('dashboard.recent_measurements')}</h2>
-            <RecentMeasurements />
-          </div>
-        </div>
+      <div className="bg-white rounded-xl shadow p-4 md:p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('dashboard.recent_measurements')}</h2>
+        <RecentMeasurements />
       </div>
     </div>
   )

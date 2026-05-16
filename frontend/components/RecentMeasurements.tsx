@@ -36,8 +36,8 @@ export default function RecentMeasurements() {
   }
   
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
+    <div className="overflow-x-auto rounded-lg border border-gray-200">
+      <table className="w-full min-w-[640px]">
         <thead>
           <tr className="border-b border-gray-200">
             <th className="text-left py-3 px-2 text-sm font-medium text-gray-700">{t('measurements.date')}</th>

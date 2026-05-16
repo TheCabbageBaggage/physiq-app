@@ -5,6 +5,9 @@
 @layer base {
   :root {
     --surface: #f8fafc;
+    --line-soft: #dbe3ef;
+    --brand-600: #0052a3;
+    --brand-700: #003d7a;
   }
 
   body {
@@ -42,5 +45,16 @@
   .unit-toggle.active {
     background: #0066CC;
     color: white;
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  }
+
+  .app-backdrop {
+    background:
+      radial-gradient(1100px 420px at 15% -10%, rgba(0, 102, 204, 0.08), transparent 60%),
+      radial-gradient(900px 360px at 85% -15%, rgba(16, 185, 129, 0.05), transparent 60%),
+      #f8fafc;
   }
 }
