@@ -22,6 +22,7 @@ from . import schemas
 from .database import get_db
 from sqlalchemy.orm import Session
 from .models import User
+from .security import log_security_event, validate_secret_key_or_raise
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -30,7 +31,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 # JWT Configuration
-SECRET_KEY = "your-secret-key-change-in-production"  # Should be in environment variables
+SECRET_KEY = validate_secret_key_or_raise()
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24 hours
 
@@ -59,14 +60,18 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
     """Authenticate a user by email and password."""
     user = db.query(User).filter(User.email == email).first()
     if not user:
+        log_security_event("auth.login_failed", reason="unknown_email", email=email)
         return None
 
     # Backward compatibility: some DBs may still have hashed_password from earlier schema.
     stored_hash = getattr(user, "password_hash", None) or getattr(user, "hashed_password", None)
     if not stored_hash:
+        log_security_event("auth.login_failed", reason="missing_password_hash", email=email)
         return None
     if not verify_password(password, stored_hash):
+        log_security_event("auth.login_failed", reason="bad_password", email=email)
         return None
+    log_security_event("auth.login_success", user_id=user.id, email=user.email)
     return user
 
 async def get_current_user(

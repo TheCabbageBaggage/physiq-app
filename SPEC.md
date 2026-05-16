@@ -178,17 +178,17 @@ User Story 6.2: As admin, I can manage opportunities/pricing/coupons.
 3. Cohesive admin UI and audit trail for all actions.
 
 ### Epic 7: Security Hardening
-Status: `IN PROGRESS`
+Status: `COMPLETED`
 
 User Story 7.1: As security owner, deployment uses secure defaults.
-- Status: `NOT COMPLETED`
+- Status: `COMPLETED`
 - Technical requirements:
 1. Remove weak default secrets.
 2. Enforce strong secret validation at boot.
 3. Harden CORS and trusted origins per environment.
 
 User Story 7.2: As security owner, platform has robust abuse protection and observability.
-- Status: `NOT COMPLETED`
+- Status: `COMPLETED`
 - Technical requirements:
 1. Replace in-memory rate limiting with shared backend (Redis or API gateway).
 2. Add structured security logs and alerting.

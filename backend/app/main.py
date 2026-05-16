@@ -9,6 +9,7 @@ from app.routers import auth, measurements, users, subscriptions, opportunities,
 from app.database import engine, Base, get_db
 from app.models import User
 from app import auth as auth_mod
+from app.security import parse_allowed_origins, log_security_event
 
 
 def run_startup_migrations() -> None:
@@ -177,6 +178,15 @@ def run_startup_migrations() -> None:
                     FOREIGN KEY(actor_user_id) REFERENCES users(id)
                 )
             """))
+        if "rate_limit_events" not in tables:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS rate_limit_events (
+                    id INTEGER PRIMARY KEY,
+                    scope VARCHAR(50) NOT NULL,
+                    key VARCHAR(255) NOT NULL,
+                    created_at DATETIME
+                )
+            """))
 
         # Performance indexes (SQLite/PostgreSQL compatible SQL)
         conn.execute(text("CREATE INDEX IF NOT EXISTS ix_users_created_at ON users (created_at)"))
@@ -185,6 +195,7 @@ def run_startup_migrations() -> None:
         conn.execute(text("CREATE INDEX IF NOT EXISTS ix_opportunities_converted_user ON opportunities (converted_to_customer_id)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS ix_subscription_events_user_created ON subscription_events (user_id, created_at)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS ix_audit_logs_actor_created ON audit_logs (actor_user_id, created_at)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_rate_limit_scope_key_created ON rate_limit_events (scope, key, created_at)"))
 
     Path("uploads/profiles").mkdir(parents=True, exist_ok=True)
 
@@ -193,8 +204,9 @@ run_startup_migrations()
 
 app = FastAPI(title="Physiq API", version="2.1.0")
 
-allowed_origins_raw = os.getenv("ALLOWED_ORIGINS", "https://dashboard.claw.lkohl.duckdns.org,http://localhost:3001")
-allowed_origins = [o.strip() for o in allowed_origins_raw.split(",") if o.strip()]
+app_env = os.getenv("APP_ENV", "development")
+allowed_origins = parse_allowed_origins(app_env)
+log_security_event("security.cors_configured", app_env=app_env, allowed_origins=allowed_origins)
 
 app.add_middleware(
     CORSMiddleware,

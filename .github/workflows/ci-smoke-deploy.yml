@@ -8,6 +8,8 @@ jobs:
   smoke-test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      SECRET_KEY: ci-only-very-strong-secret-key-0123456789
 
     steps:
       - name: Checkout

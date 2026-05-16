@@ -185,3 +185,12 @@ class AuditLog(Base):
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
     actor = relationship("User", foreign_keys=[actor_user_id])
+
+
+class RateLimitEvent(Base):
+    __tablename__ = "rate_limit_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    scope = Column(String(50), nullable=False, index=True)
+    key = Column(String(255), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)

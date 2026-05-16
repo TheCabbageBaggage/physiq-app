@@ -15,35 +15,42 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
 from ..database import get_db
-from ..models import Opportunity, User
+from ..models import Opportunity, RateLimitEvent, User
 from ..audit import log_admin_action
 from .. import schemas, auth
+from ..security import log_security_event
 
 router = APIRouter()
 
-# Simple in-memory rate limiting (per IP)
-_rate_limit_store: dict[str, list[float]] = {}
 RATE_LIMIT_MAX = 5  # requests per minute
 RATE_LIMIT_WINDOW = 60  # seconds
 
 
-def _check_rate_limit(ip: str) -> None:
-    """Check and update rate limit for IP. Raises HTTPException if exceeded."""
-    now = datetime.utcnow().timestamp()
-    if ip not in _rate_limit_store:
-        _rate_limit_store[ip] = []
-    # Clean old entries
-    _rate_limit_store[ip] = [
-        t for t in _rate_limit_store[ip] if now - t < RATE_LIMIT_WINDOW
-    ]
-    # Check limit
-    if len(_rate_limit_store[ip]) >= RATE_LIMIT_MAX:
+def _check_rate_limit(ip: str, db: Session) -> None:
+    """DB-backed shared rate limiting by IP. Raises HTTPException if exceeded."""
+    now = datetime.utcnow()
+    window_start = now.timestamp() - RATE_LIMIT_WINDOW
+    cutoff = datetime.utcfromtimestamp(window_start)
+
+    # Cleanup old rows to keep table small.
+    db.query(RateLimitEvent).filter(RateLimitEvent.created_at < cutoff).delete()
+    count = (
+        db.query(RateLimitEvent)
+        .filter(
+            RateLimitEvent.scope == "waitlist_signup",
+            RateLimitEvent.key == ip,
+            RateLimitEvent.created_at >= cutoff,
+        )
+        .count()
+    )
+    if count >= RATE_LIMIT_MAX:
+        log_security_event("rate_limit.blocked", scope="waitlist_signup", ip=ip, count=count)
         raise HTTPException(
             status_code=429,
             detail="Too many requests. Please try again in a minute.",
         )
-    # Add current request
-    _rate_limit_store[ip].append(now)
+    db.add(RateLimitEvent(scope="waitlist_signup", key=ip, created_at=now))
+    db.flush()
 
 
 @router.post("/opportunities", status_code=201)
@@ -57,7 +64,7 @@ def create_opportunity(
     Rate limited to 5 requests per minute per IP.
     """
     client_ip = request.client.host if request.client else "unknown"
-    _check_rate_limit(client_ip)
+    _check_rate_limit(client_ip, db)
 
     # Check if email already exists
     existing = (

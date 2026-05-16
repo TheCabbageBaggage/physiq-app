@@ -19,8 +19,9 @@ services:
     ports:
       - "8000:8000"
     environment:
+      - APP_ENV=development
       - DATABASE_URL=sqlite:///./healthhub.db
-      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - SECRET_KEY=${SECRET_KEY}
       - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=1440
       - ALLOWED_ORIGINS=http://localhost:3000,http://frontend:3000
