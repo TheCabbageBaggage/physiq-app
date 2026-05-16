@@ -34,18 +34,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (isAuthenticated === null && !isAuthPage) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-pulse text-gray-400">Loading...</div>
+        <div className="animate-pulse text-gray-500">Loading...</div>
       </div>
     )
   }
 
   if (isAuthPage) {
-    return <main className="min-h-screen bg-gray-50">{children}</main>
+    return <main className="app-backdrop physiq-theme min-h-screen">{children}</main>
   }
 
   return (
-    <div className="flex min-h-screen">
-      <div className="hidden md:flex md:w-64 md:shrink-0">
+    <div className="app-backdrop physiq-theme flex min-h-screen">
+      <div className="hidden md:flex md:w-72 md:shrink-0">
         <Sidebar />
       </div>
 
@@ -54,7 +54,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0">
         <Header onMenuClick={() => setSidebarOpen(true)} />
         <main className="flex-1 p-4 md:p-6">{children}</main>
-        <footer className="border-t border-gray-200 px-4 py-4 md:px-6 text-xs md:text-sm text-gray-500">
+        <footer className="border-t border-[var(--line-soft)] px-4 py-4 md:px-6 text-xs md:text-sm text-slate-600">
           Physiq v2 &copy; {new Date().getFullYear()}
         </footer>
       </div>

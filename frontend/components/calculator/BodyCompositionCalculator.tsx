@@ -203,8 +203,8 @@ export default function BodyCompositionCalculator() {
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Körperkomposition Rechner</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Wählen Sie zwischen <span className="font-semibold" style={{ color: '#2C5F7C' }}>lokaler Berechnung</span> oder{' '}
-              <span className="font-semibold" style={{ color: '#2C5F7C' }}>Server/ML-Berechnung</span>.
+              Wählen Sie zwischen <span className="font-semibold" style={{ color: '#0066CC' }}>lokaler Berechnung</span> oder{' '}
+              <span className="font-semibold" style={{ color: '#0066CC' }}>Server/ML-Berechnung</span>.
             </p>
           </div>
 
@@ -214,8 +214,8 @@ export default function BodyCompositionCalculator() {
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-xl font-semibold text-gray-900">Ihre Daten</h3>
                   <div className="flex rounded-lg p-0.5 border" style={{ backgroundColor: '#f1f5f9' }}>
-                    <button onClick={switchToMetric} className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${isMetric ? 'text-white' : 'text-gray-600'}`} style={isMetric ? { backgroundColor: '#2C5F7C' } : {}}>Metrisch</button>
-                    <button onClick={switchToImperial} className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${!isMetric ? 'text-white' : 'text-gray-600'}`} style={!isMetric ? { backgroundColor: '#2C5F7C' } : {}}>Imperial</button>
+                    <button onClick={switchToMetric} className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${isMetric ? 'text-white' : 'text-gray-600'}`} style={isMetric ? { backgroundColor: '#0066CC' } : {}}>Metrisch</button>
+                    <button onClick={switchToImperial} className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${!isMetric ? 'text-white' : 'text-gray-600'}`} style={!isMetric ? { backgroundColor: '#0066CC' } : {}}>Imperial</button>
                   </div>
                 </div>
 
@@ -237,8 +237,8 @@ export default function BodyCompositionCalculator() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Geschlecht</label>
                   <div className="grid grid-cols-2 gap-3">
                     {(['male', 'female'] as const).map(g => (
-                      <label key={g} className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all hover:border-[#3D8B8B] ${gender === g ? 'border-[#2C5F7C]' : 'border-gray-200'}`}>
-                        <input type="radio" checked={gender === g} onChange={() => setGender(g)} className="h-4 w-4" style={{ accentColor: '#2C5F7C' }} />
+                      <label key={g} className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all hover:border-[#0052a3] ${gender === g ? 'border-[#0066CC]' : 'border-gray-200'}`}>
+                        <input type="radio" checked={gender === g} onChange={() => setGender(g)} className="h-4 w-4" style={{ accentColor: '#0066CC' }} />
                         <span className="ml-3 text-gray-700">{g === 'male' ? 'Männlich' : 'Weiblich'}</span>
                       </label>
                     ))}
@@ -292,7 +292,7 @@ export default function BodyCompositionCalculator() {
                   </div>
                 )}
 
-                <button onClick={handleCalculate} disabled={loading} className="w-full py-3 px-4 rounded-lg text-white font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-70" style={{ backgroundColor: '#2C5F7C' }}>
+                <button onClick={handleCalculate} disabled={loading} className="w-full py-3 px-4 rounded-lg text-white font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-70" style={{ backgroundColor: '#0066CC' }}>
                   {loading ? 'Berechne...' : mode === 'local' ? '🔒 Lokal berechnen' : '🧠 Server/ML berechnen'}
                 </button>
                 {error && <p className="text-sm text-red-600">{error}</p>}
@@ -328,7 +328,7 @@ export default function BodyCompositionCalculator() {
                         <span className="text-xs font-semibold text-gray-600">{results.bodyFatCategory}</span>
                       </div>
                       <div className="h-2 rounded-full" style={{ backgroundColor: '#dbeafe' }}>
-                        <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${results.bodyFatBarWidth}%`, background: 'linear-gradient(90deg, #2C5F7C, #3D8B8B)' }} />
+                        <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${results.bodyFatBarWidth}%`, background: 'linear-gradient(90deg, #0066CC, #0052a3)' }} />
                       </div>
                     </div>
 

@@ -44,11 +44,11 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-blue-50 via-white to-blue-50">
+    <main className="min-h-screen flex items-center justify-center p-6 app-backdrop">
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#0066CC] shadow-lg mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-primary shadow-lg mb-4">
             <Activity className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Physiq</h1>
@@ -70,7 +70,7 @@ export default function LoginPage() {
             <div className="relative">
               <Mail className="w-4 h-4 absolute left-3 top-3.5 text-gray-400" />
               <input
-                className="w-full border border-gray-300 rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-[var(--line-soft)] rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-[var(--brand-600)] focus:border-transparent"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -82,7 +82,7 @@ export default function LoginPage() {
             <div className="relative">
               <Lock className="w-4 h-4 absolute left-3 top-3.5 text-gray-400" />
               <input
-                className="w-full border border-gray-300 rounded-lg py-2.5 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-[var(--line-soft)] rounded-lg py-2.5 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-[var(--brand-600)] focus:border-transparent"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -102,7 +102,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#0066CC] text-white rounded-lg py-2.5 font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+              className="w-full gradient-primary text-white rounded-lg py-2.5 font-medium hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {loading ? t('auth.signing_in') : t('auth.login')}
@@ -112,7 +112,7 @@ export default function LoginPage() {
           <div className="mt-6 pt-6 border-t border-gray-100">
             <p className="text-sm text-gray-600 text-center">
               {t('auth.no_account')}{' '}
-              <Link href={appPath('/register')} className="text-[#0066CC] hover:underline font-medium">
+              <Link href={appPath('/register')} className="text-[var(--brand-700)] hover:underline font-medium">
                 {t('auth.register')}
               </Link>
             </p>

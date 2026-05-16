@@ -8,12 +8,12 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { t } = useTranslation()
 
   return (
-    <header className="border-b border-gray-200 bg-white px-4 py-4 md:px-6">
+    <header className="border-b border-[var(--line-soft)] bg-white/85 backdrop-blur px-4 py-4 md:px-6">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-1 max-w-xl">
           <button
             onClick={onMenuClick}
-            className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            className="md:hidden p-2 text-slate-600 hover:bg-[var(--brand-100)] rounded-lg"
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
@@ -23,17 +23,17 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
               <input
                 type="search"
                 placeholder={t('common.search')}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-[var(--line-soft)] bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-600)]"
               />
             </div>
           </div>
 
         <div className="flex items-center space-x-2 md:space-x-4">
           <LanguageSwitcher compact />
-          <button className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+          <button className="p-2 text-slate-600 hover:text-[var(--brand-700)] hover:bg-[var(--brand-100)] rounded-lg">
             <HelpCircle className="h-5 w-5" />
           </button>
-          <button className="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+          <button className="relative p-2 text-slate-600 hover:text-[var(--brand-700)] hover:bg-[var(--brand-100)] rounded-lg">
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
           </button>

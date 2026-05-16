@@ -37,7 +37,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#2C5F7C' }}>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#0066CC' }}>
                 <Zap className="h-5 w-5 text-white" />
               </div>
               <div>
@@ -52,19 +52,19 @@ export default function LandingPage() {
                 <span className="text-sm font-medium text-gray-600 hidden sm:inline">100% Datensouverän</span>
               </div>
               <nav className="hidden md:flex items-center gap-5">
-                <button onClick={() => scrollTo('calculator')} className="text-sm font-medium text-gray-600 hover:text-[#2C5F7C] transition-colors">Rechner</button>
-                <button onClick={() => scrollTo('waitinglist')} className="text-sm font-medium text-gray-600 hover:text-[#2C5F7C] transition-colors">Waitlist</button>
-                <button onClick={() => scrollTo('privacy')} className="text-sm font-medium text-gray-600 hover:text-[#2C5F7C] transition-colors">Privacy</button>
+                <button onClick={() => scrollTo('calculator')} className="text-sm font-medium text-gray-600 hover:text-[#0066CC] transition-colors">Rechner</button>
+                <button onClick={() => scrollTo('waitinglist')} className="text-sm font-medium text-gray-600 hover:text-[#0066CC] transition-colors">Waitlist</button>
+                <button onClick={() => scrollTo('privacy')} className="text-sm font-medium text-gray-600 hover:text-[#0066CC] transition-colors">Privacy</button>
               </nav>
               <div className="flex items-center gap-3">
                 {isLoggedIn ? (
-                  <Link href={appPath('/dashboard')} className="text-sm px-4 py-2 rounded-lg text-white font-medium transition-colors" style={{ backgroundColor: '#2C5F7C' }}>
+                  <Link href={appPath('/dashboard')} className="text-sm px-4 py-2 rounded-lg text-white font-medium transition-colors" style={{ backgroundColor: '#0066CC' }}>
                     Dashboard
                   </Link>
                 ) : (
                   <>
-                    <Link href={appPath('/login')} className="text-sm text-gray-600 hover:text-[#2C5F7C] font-medium transition-colors">Anmelden</Link>
-                    <Link href={appPath('/register')} className="text-sm px-4 py-2 rounded-lg text-white font-medium transition-colors" style={{ backgroundColor: '#2C5F7C' }}>Registrieren</Link>
+                    <Link href={appPath('/login')} className="text-sm text-gray-600 hover:text-[#0066CC] font-medium transition-colors">Anmelden</Link>
+                    <Link href={appPath('/register')} className="text-sm px-4 py-2 rounded-lg text-white font-medium transition-colors" style={{ backgroundColor: '#0066CC' }}>Registrieren</Link>
                   </>
                 )}
               </div>
@@ -85,7 +85,7 @@ export default function LandingPage() {
             </div>
 
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-              Körperkomposition <span style={{ color: '#2C5F7C' }}>privat</span> berechnen
+              Körperkomposition <span style={{ color: '#0066CC' }}>privat</span> berechnen
             </h1>
 
             <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
@@ -112,12 +112,12 @@ export default function LandingPage() {
             <div className="flex flex-wrap justify-center gap-4">
               <button onClick={() => scrollTo('calculator')}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-white font-semibold transition-all hover:shadow-lg"
-                style={{ backgroundColor: '#2C5F7C' }}>
+                style={{ backgroundColor: '#0066CC' }}>
                 Jetzt berechnen <ChevronRight className="h-4 w-4" />
               </button>
               <button onClick={() => scrollTo('waitinglist')}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold border transition-all"
-                style={{ borderColor: '#3D8B8B', color: '#3D8B8B' }}>
+                style={{ borderColor: '#0052a3', color: '#0052a3' }}>
                 Für Waitlist anmelden
               </button>
             </div>
@@ -135,11 +135,11 @@ export default function LandingPage() {
       <PrivacySection />
 
       {/* ──────── FOOTER ──────── */}
-      <footer className="py-12 text-white" style={{ backgroundColor: '#1A3440' }}>
+      <footer className="py-12 text-white" style={{ backgroundColor: '#111827' }}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#2C5F7C' }}>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#0066CC' }}>
                 <Zap className="h-5 w-5 text-white" />
               </div>
               <div>

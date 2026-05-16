@@ -64,8 +64,8 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-md bg-white rounded-xl shadow p-6">
+    <main className="min-h-screen flex items-center justify-center p-6 app-backdrop">
+      <div className="w-full max-w-md app-panel rounded-xl p-6">
         <h1 className="text-2xl font-semibold mb-6">{t('auth.register')}</h1>
 
         {error && (
@@ -76,18 +76,18 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input className="w-full border border-gray-300 rounded-lg py-2.5 px-3" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={t('auth.full_name')} required />
-          <input className="w-full border border-gray-300 rounded-lg py-2.5 px-3" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t('auth.email')} required />
+          <input className="w-full border border-[var(--line-soft)] rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-[var(--brand-600)]" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={t('auth.full_name')} required />
+          <input className="w-full border border-[var(--line-soft)] rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-[var(--brand-600)]" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t('auth.email')} required />
 
           <div className="relative">
-            <input className="w-full border border-gray-300 rounded-lg py-2.5 px-3 pr-10" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('auth.password')} minLength={8} required />
+            <input className="w-full border border-[var(--line-soft)] rounded-lg py-2.5 px-3 pr-10 focus:outline-none focus:ring-2 focus:ring-[var(--brand-600)]" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('auth.password')} minLength={8} required />
             <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-3 text-gray-500" aria-label={t('auth.password')}>
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
 
           <div className="relative">
-            <input className="w-full border border-gray-300 rounded-lg py-2.5 px-3 pr-10" type={showConfirmPassword ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder={t('auth.confirm_password')} minLength={8} required />
+            <input className="w-full border border-[var(--line-soft)] rounded-lg py-2.5 px-3 pr-10 focus:outline-none focus:ring-2 focus:ring-[var(--brand-600)]" type={showConfirmPassword ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder={t('auth.confirm_password')} minLength={8} required />
             <button type="button" onClick={() => setShowConfirmPassword((v) => !v)} className="absolute right-3 top-3 text-gray-500" aria-label={t('auth.confirm_password')}>
               {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -104,20 +104,20 @@ export default function RegisterPage() {
             <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} className="mt-0.5" required />
             <span>
               {t('auth.accept_terms')}{' '}
-              <Link href={appPath('/terms')} className="text-blue-600 hover:underline">{t('auth.terms')}</Link>
+              <Link href={appPath('/terms')} className="text-[var(--brand-700)] hover:underline">{t('auth.terms')}</Link>
               {' '}{t('auth.and')}{' '}
-              <Link href={appPath('/privacy')} className="text-blue-600 hover:underline">{t('auth.privacy_policy')}</Link>.
+              <Link href={appPath('/privacy')} className="text-[var(--brand-700)] hover:underline">{t('auth.privacy_policy')}</Link>.
             </span>
           </label>
 
-          <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white rounded-lg py-2.5 font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          <button type="submit" disabled={loading} className="w-full gradient-primary text-white rounded-lg py-2.5 font-medium hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {loading ? t('auth.creating_account') : t('auth.register')}
           </button>
         </form>
 
         <p className="mt-4 text-sm text-gray-600">
-          {t('auth.has_account')} <Link href={appPath('/')} className="text-blue-600 hover:underline">{t('auth.login')}</Link>
+          {t('auth.has_account')} <Link href={appPath('/')} className="text-[var(--brand-700)] hover:underline">{t('auth.login')}</Link>
         </p>
       </div>
     </main>

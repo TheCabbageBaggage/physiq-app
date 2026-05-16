@@ -74,17 +74,17 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
       />
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-200 md:w-16 md:translate-x-0 ${
+        className={`fixed left-0 top-0 z-50 flex h-screen w-72 flex-col border-r border-[var(--line-soft)] bg-white transition-transform duration-200 md:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4 md:justify-center md:px-0">
-          <div className="flex items-center gap-3 md:gap-0">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0066CC] shadow-sm">
+        <div className="flex h-16 items-center justify-between border-b border-[var(--line-soft)] px-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl shadow-sm gradient-primary">
               <Activity className="h-4 w-4 text-white" />
             </div>
-            <div className="md:hidden">
-              <p className="text-sm font-semibold text-[#1F2937]">{t('navigation.app_name')}</p>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">{t('navigation.app_name')}</p>
               <p className="text-xs text-slate-500">{t('navigation.app_tagline')}</p>
             </div>
           </div>
@@ -108,14 +108,14 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                 onClick={onClose}
                 className={`group flex items-center rounded-xl border px-3 py-2.5 transition ${
                   isActive
-                    ? "border-blue-100 bg-blue-50 text-[#0066CC]"
-                    : "border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                } md:justify-center md:px-0`}
+                    ? "border-blue-100 bg-blue-50 text-blue-700"
+                    : "border-transparent text-slate-600 hover:bg-white hover:text-[var(--brand-900)]"
+                }`}
                 title={item.label}
               >
                 <item.icon className="h-5 w-5" />
-                <span className="ml-3 text-sm font-medium md:hidden">{item.label}</span>
-                {item.locked && <span className="ml-2 text-xs text-amber-600 md:hidden">{t('navigation.upgrade')}</span>}
+                <span className="ml-3 text-sm font-medium">{item.label}</span>
+                {item.locked && <span className="ml-2 text-xs text-amber-600">{t('navigation.upgrade')}</span>}
               </Link>
             )
           })}
@@ -124,11 +124,11 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
         <div className="border-t border-slate-200 p-3">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center rounded-xl border border-transparent px-3 py-2.5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 md:justify-center md:px-0"
+            className="flex w-full items-center rounded-xl border border-transparent px-3 py-2.5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
             title={t('common.logout')}
           >
             <LogOut className="h-5 w-5" />
-            <span className="ml-3 text-sm font-medium md:hidden">{t('common.logout')}</span>
+            <span className="ml-3 text-sm font-medium">{t('common.logout')}</span>
           </button>
         </div>
       </aside>

@@ -67,7 +67,7 @@ export default function WaitlistSection() {
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Personalisierte BIA-basierte Vorhersagen</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Erhalten Sie <span className="font-semibold" style={{ color: '#2C5F7C' }}>präzisere Körperkompositions-Analysen</span> basierend auf Ihren eigenen Bioimpedanz-Scans.
+              Erhalten Sie <span className="font-semibold" style={{ color: '#0066CC' }}>präzisere Körperkompositions-Analysen</span> basierend auf Ihren eigenen Bioimpedanz-Scans.
             </p>
           </div>
 
@@ -130,9 +130,9 @@ export default function WaitlistSection() {
                   <div>
                     <label className="flex items-start">
                       <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)}
-                        className="h-4 w-4 mt-1 rounded" style={{ accentColor: '#2C5F7C' }} />
+                        className="h-4 w-4 mt-1 rounded" style={{ accentColor: '#0066CC' }} />
                       <span className="ml-3 text-sm text-gray-700">
-                        Ich stimme der <a href="#privacy" className="font-medium" style={{ color: '#2C5F7C' }}>Datenschutzerklärung</a> zu.
+                        Ich stimme der <a href="#privacy" className="font-medium" style={{ color: '#0066CC' }}>Datenschutzerklärung</a> zu.
                         Meine Daten werden gemäß <span className="font-semibold">EU-DSGVO</span> verarbeitet.
                       </span>
                     </label>
@@ -140,7 +140,7 @@ export default function WaitlistSection() {
 
                   <button type="submit" disabled={loading}
                     className="w-full py-3 px-4 rounded-lg text-white font-semibold transition-all hover:shadow-lg disabled:opacity-60"
-                    style={{ backgroundColor: '#2C5F7C' }}>
+                    style={{ backgroundColor: '#0066CC' }}>
                     {loading ? <span className="inline-flex items-center gap-2"><span className="animate-spin">⟳</span> Wird gesendet...</span> : '🔒 Für Waitlist anmelden'}
                   </button>
                 </form>
