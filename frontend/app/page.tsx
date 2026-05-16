@@ -11,108 +11,100 @@ export default function LandingPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem('token'))
+    const token = localStorage.getItem('token')
+    setIsLoggedIn(!!token)
   }, [])
 
   const scrollTo = useCallback((id: string) => {
     const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (el) {
+      window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' })
+    }
   }, [])
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(1000px_500px_at_10%_-5%,rgba(34,211,238,0.20),transparent),radial-gradient(900px_400px_at_95%_-10%,rgba(59,130,246,0.18),transparent)]" />
-
-      <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 font-bold text-white">⚡</div>
-            <div>
-              <p className="text-xl font-semibold tracking-tight">PhysIQ</p>
-              <p className="text-xs text-slate-400">Modern Body Intelligence</p>
+    <div className="bg-gray-50 text-gray-900">
+      <header className="gradient-bg border-b">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center space-x-3 mb-4 md:mb-0">
+              <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">⚡</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">PhysIQ</h1>
+                <p className="text-sm text-gray-600">Data Privacy First Body Analytics</p>
+              </div>
             </div>
-          </div>
 
-          <div className="hidden items-center gap-6 md:flex">
-            <button onClick={() => scrollTo('calculator')} className="text-sm text-slate-300 hover:text-white">Rechner</button>
-            <button onClick={() => scrollTo('waitinglist')} className="text-sm text-slate-300 hover:text-white">Waitlist</button>
-            <button onClick={() => scrollTo('privacy')} className="text-sm text-slate-300 hover:text-white">Privacy</button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {isLoggedIn ? (
-              <Link href={appPath('/dashboard')} className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900">Dashboard</Link>
-            ) : (
-              <>
-                <Link href={appPath('/login')} className="rounded-xl px-3 py-2 text-sm text-slate-200 hover:bg-slate-900">Login</Link>
-                <Link href={appPath('/register')} className="rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 px-4 py-2 text-sm font-semibold text-white">Registrieren</Link>
-              </>
-            )}
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-success rounded-full" />
+                <span className="text-sm font-medium text-gray-700">100% Datensouverän</span>
+              </div>
+              <div className="hidden md:flex items-center space-x-4">
+                <button onClick={() => scrollTo('calculator')} className="text-primary-600 hover:text-primary-700 font-medium">Rechner</button>
+                <button onClick={() => scrollTo('waitinglist')} className="text-primary-600 hover:text-primary-700 font-medium">Waitlist</button>
+                <button onClick={() => scrollTo('privacy')} className="text-primary-600 hover:text-primary-700 font-medium">Privacy</button>
+              </div>
+              <div className="flex items-center gap-2">
+                {isLoggedIn ? (
+                  <Link href={appPath('/dashboard')} className="px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium">Dashboard</Link>
+                ) : (
+                  <>
+                    <Link href={appPath('/login')} className="text-primary-600 hover:text-primary-700 font-medium text-sm">Anmelden</Link>
+                    <Link href={appPath('/register')} className="px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium">Registrieren</Link>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
-      <section className="mx-auto grid max-w-7xl gap-10 px-4 pb-14 pt-14 md:grid-cols-[1.1fr_0.9fr] md:pt-20">
-        <div>
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-4 py-2 text-xs text-cyan-100">
-            <span className="rounded-full bg-emerald-500 px-2 py-0.5 font-semibold text-white">LIVE</span>
-            DSGVO-konforme Analytics ohne Cloud-Zwang
-          </div>
-          <h1 className="text-balance text-4xl font-semibold leading-tight md:text-6xl">
-            Ein komplett neues,
-            <span className="block bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">modernes PhysIQ Erlebnis</span>
-          </h1>
-          <p className="mt-5 max-w-xl text-slate-300 md:text-lg">
-            Präzise Körperkompositions-Prognosen mit starker UX, schneller API und sauberem Datenschutz-Setup.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <button onClick={() => scrollTo('calculator')} className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900">Jetzt testen</button>
-            <button onClick={() => scrollTo('waitinglist')} className="rounded-xl border border-slate-700 px-5 py-3 text-sm font-semibold text-slate-200 hover:bg-slate-900">Zur Waitlist</button>
-          </div>
-          <div className="mt-8 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-3">
-            <Stat label="Antwortzeit" value="<120ms" />
-            <Stat label="Berechnung" value="Lokal + ML" />
-            <Stat label="Deploy" value="Containerized" />
-          </div>
-        </div>
+      <section className="gradient-bg py-12 md:py-20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center space-x-2 mb-6 px-4 py-2 rounded-full bg-white border shadow-sm">
+              <span className="privacy-badge text-white text-xs font-semibold px-3 py-1 rounded-full">🔐 Data Privacy First</span>
+              <span className="text-sm text-gray-600">Keine Cloud-Speicherung • EU-hosted • Open Source</span>
+            </div>
 
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6 shadow-2xl shadow-black/30">
-          <p className="text-sm font-medium text-slate-200">Warum dieses Redesign?</p>
-          <ul className="mt-4 space-y-3 text-sm text-slate-300">
-            <li>Modernere visuelle Hierarchie für bessere Orientierung</li>
-            <li>Reduzierte visuelle Last mit klaren Interaktionspunkten</li>
-            <li>Konsistenter Look zwischen Landing, Login und App-Bereich</li>
-          </ul>
-          <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-4 text-xs text-slate-400">
-            Tipp: Gib mir gern konkrete Screens mit "zu dunkel / zu hell / mehr spacing" und ich tune es in der nächsten Iteration pixelgenau.
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Körperkomposition <span className="text-primary-600">privat</span> berechnen
+            </h1>
+
+            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              Präzise Vorhersage von Körperfett und Muskelmasse basierend auf wissenschaftlichen Algorithmen.{' '}
+              <span className="font-semibold text-gray-800">Ihre Daten werden niemals unsere Server verlassen.</span>
+            </p>
           </div>
         </div>
       </section>
 
-      <div className="bg-white text-slate-900">
-        <BodyCompositionCalculator />
-        <WaitlistSection />
-        <PrivacySection />
-      </div>
+      <BodyCompositionCalculator />
+      <WaitlistSection />
+      <PrivacySection />
 
-      <footer className="border-t border-slate-800 bg-slate-950 py-10 text-slate-400">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-sm md:flex-row">
-          <p>© {new Date().getFullYear()} PhysIQ</p>
-          <div className="flex gap-5">
-            <button onClick={() => scrollTo('privacy')} className="hover:text-white">Datenschutz</button>
-            <Link href={appPath('/terms')} className="hover:text-white">Impressum</Link>
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-6 md:mb-0">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center"><span className="text-white font-bold text-xl">⚡</span></div>
+                <div>
+                  <h2 className="text-xl font-bold">PhysIQ</h2>
+                  <p className="text-gray-400 text-sm">Data Privacy First Body Analytics</p>
+                </div>
+              </div>
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-gray-400 mb-2">&copy; {new Date().getFullYear()} PhysIQ. Alle Rechte vorbehalten.</p>
+              <p className="text-gray-500 text-sm">Made with ❤️ in EU • <button onClick={() => scrollTo('privacy')} className="text-gray-400 hover:text-white">Datenschutz</button> • <Link href={appPath('/terms')} className="text-gray-400 hover:text-white">Impressum</Link></p>
+            </div>
           </div>
         </div>
       </footer>
-    </div>
-  )
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-      <p className="text-[11px] uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-white">{value}</p>
     </div>
   )
 }
