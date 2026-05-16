@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
-from app.routers import auth, measurements, users, subscriptions, opportunities, calculate, pricing
+from app.routers import auth, measurements, users, subscriptions, opportunities, calculate, pricing, admin_overview
 from app.database import engine, Base, get_db
 from app.models import User
 from app import auth as auth_mod
@@ -189,6 +189,7 @@ app.include_router(subscriptions.router, prefix="/api/subscriptions", tags=["sub
 app.include_router(calculate.router, prefix="/api", tags=["calculate"])
 app.include_router(opportunities.router, prefix="/api", tags=["opportunities"])
 app.include_router(pricing.router, tags=["pricing"])
+app.include_router(admin_overview.router, tags=["admin"])
 app.mount("/uploads", StaticFiles(directory="uploads", check_dir=False), name="uploads")
 
 

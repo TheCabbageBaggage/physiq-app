@@ -265,6 +265,18 @@ class SubscriptionHistoryItem(BaseModel):
     stripe_subscription_id: Optional[str] = None
 
 
+class InvoiceItem(BaseModel):
+    invoice_id: str
+    status: Optional[str] = None
+    amount_due_cents: int
+    amount_paid_cents: int
+    currency: str
+    period_start: Optional[datetime] = None
+    period_end: Optional[datetime] = None
+    hosted_invoice_url: Optional[str] = None
+    invoice_pdf: Optional[str] = None
+
+
 class OpportunityCreate(BaseModel):
     email: EmailStr
     name: Optional[str] = None

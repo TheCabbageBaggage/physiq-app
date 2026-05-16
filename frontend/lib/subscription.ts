@@ -20,6 +20,18 @@ export type SubscriptionHistoryItem = {
   stripe_subscription_id: string | null
 }
 
+export type InvoiceItem = {
+  invoice_id: string
+  status: string | null
+  amount_due_cents: number
+  amount_paid_cents: number
+  currency: string
+  period_start: string | null
+  period_end: string | null
+  hosted_invoice_url: string | null
+  invoice_pdf: string | null
+}
+
 const PLAN_LEVELS: Record<PlanType, number> = {
   free: 0,
   pro: 1,
@@ -60,6 +72,18 @@ export async function fetchSubscriptionHistory(limit = 30): Promise<Subscription
   if (!token) return []
 
   const res = await fetch(apiUrl(`/subscriptions/history?limit=${limit}`), {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+  if (!res.ok) return []
+  return res.json()
+}
+
+export async function fetchInvoices(limit = 20): Promise<InvoiceItem[]> {
+  const token = getAuthToken()
+  if (!token) return []
+
+  const res = await fetch(apiUrl(`/subscriptions/invoices?limit=${limit}`), {
     headers: { Authorization: `Bearer ${token}` },
   })
 

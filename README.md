@@ -45,6 +45,7 @@ docker-compose up -d
 # Backend API: http://localhost:8000
 # ML Service: http://localhost:8001
 # API Docs: http://localhost:8000/docs
+# Admin Overview API: http://localhost:8000/api/admin/overview
 ```
 
 ### Deployment Smoke Check
@@ -123,6 +124,8 @@ DATABASE_URL=sqlite:///./healthhub.db
 SECRET_KEY=your-secret-key-here
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
+# Example PostgreSQL:
+# DATABASE_URL=postgresql+psycopg://user:password@localhost:5432/physiq
 ```
 
 ## License

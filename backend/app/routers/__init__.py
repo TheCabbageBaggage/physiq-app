@@ -11,9 +11,10 @@ Available routers:
 - subscriptions: Stripe subscription handling
 - opportunities: Waitlist management (public signup + admin)
 - calculate: Public body composition calculator
+- admin_overview: Admin operational overview
 """
 
-from . import auth, measurements, users, subscriptions, opportunities, calculate, pricing
+from . import auth, measurements, users, subscriptions, opportunities, calculate, pricing, admin_overview
 
 __all__ = [
     "auth",
@@ -23,4 +24,5 @@ __all__ = [
     "opportunities",
     "calculate",
     "pricing",
+    "admin_overview",
 ]

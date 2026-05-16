@@ -1,44 +1,32 @@
-"""
-Database Configuration
+"""Database configuration with SQLite/PostgreSQL support."""
 
-This module sets up the SQLAlchemy database connection and session factory.
-Uses SQLite for simplicity in self-hosted deployments.
-
-Responsibilities:
-- Create SQLAlchemy engine with SQLite
-- Configure session factory
-- Define declarative base for models
-"""
-
-from sqlalchemy import create_engine
+import os
+from sqlalchemy import create_engine, event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# SQLite database URL
-SQLALCHEMY_DATABASE_URL = "sqlite:///./healthhub.db"
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./healthhub.db")
+IS_SQLITE = SQLALCHEMY_DATABASE_URL.startswith("sqlite")
 
-# Create SQLAlchemy engine
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False}  # Required for SQLite
-)
+engine_kwargs = {"pool_pre_ping": True}
+if IS_SQLITE:
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
 
-# Create session factory
+engine = create_engine(SQLALCHEMY_DATABASE_URL, **engine_kwargs)
+
+if IS_SQLITE:
+    @event.listens_for(engine, "connect")
+    def _set_sqlite_pragmas(dbapi_conn, _):
+        cur = dbapi_conn.cursor()
+        cur.execute("PRAGMA journal_mode=WAL;")
+        cur.execute("PRAGMA synchronous=NORMAL;")
+        cur.close()
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create declarative base
 Base = declarative_base()
 
 def get_db():
-    """
-    Dependency function to get database session.
-    
-    Usage in FastAPI endpoints:
-        db: Session = Depends(get_db)
-    
-    Yields:
-        SQLAlchemy session
-    """
     db = SessionLocal()
     try:
         yield db

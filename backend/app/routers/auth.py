@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 
 from .. import schemas, auth
 from ..database import get_db
-from ..models import User
+from ..models import Opportunity, User
 from ..subscription import get_available_features, get_subscription_status, get_user_plan
 
 router = APIRouter()
@@ -68,6 +68,15 @@ def register(user: schemas.UserCreate, request: Request, db: Session = Depends(g
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
+    # Auto-link waitlist opportunity on matching email.
+    opportunity = db.query(Opportunity).filter(Opportunity.email == db_user.email).first()
+    if opportunity and opportunity.status != "converted":
+        opportunity.status = "converted"
+        opportunity.converted_to_customer_id = db_user.id
+        opportunity.converted_at = db_user.created_at
+        db.add(opportunity)
+        db.commit()
     
     return db_user
 

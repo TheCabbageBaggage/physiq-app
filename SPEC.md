@@ -135,14 +135,14 @@ User Story 4.2: As a user, I can track measurements and visualize trends/history
 3. Plan gating for premium features.
 
 User Story 4.3: As a user, I can view complete payment history and invoices.
-- Status: `PARTIALLY COMPLETED`
+- Status: `COMPLETED`
 - Technical requirements:
 1. Persist payment events in normalized ledger tables.
 2. Add user-facing payment history and invoice list.
 3. Add reconciliation tooling and audit trail.
 
 ### Epic 5: Data Architecture Modernization
-Status: `NOT COMPLETED`
+Status: `IN PROGRESS`
 
 User Story 5.1: As platform owner, database supports high concurrency and scale.
 - Status: `NOT COMPLETED`
@@ -152,17 +152,17 @@ User Story 5.1: As platform owner, database supports high concurrency and scale.
 3. Add backup/restore and retention strategy.
 
 User Story 5.2: As growth ops, waitlist conversion to customer is first-class workflow.
-- Status: `PARTIALLY COMPLETED`
+- Status: `COMPLETED`
 - Technical requirements:
 1. Keep FK link `opportunities.converted_to_customer_id` (exists).
 2. Add auto-link on successful registration by matching email.
 3. Add reporting for conversion funnel.
 
 ### Epic 6: Admin And Operations Console
-Status: `NOT COMPLETED`
+Status: `IN PROGRESS`
 
 User Story 6.1: As admin, I can view full operational dashboard.
-- Status: `NOT COMPLETED`
+- Status: `PARTIALLY COMPLETED`
 - Technical requirements:
 1. User counts and cohort summaries.
 2. Measurement counters and growth trends.

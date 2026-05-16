@@ -88,6 +88,47 @@ def get_subscription_history(
     return events
 
 
+@router.get("/invoices", response_model=list[schemas.InvoiceItem])
+def get_invoices(
+    limit: int = 20,
+    current_user: User = Depends(auth.get_current_active_user),
+):
+    if not os.getenv("STRIPE_SECRET_KEY"):
+        return []
+    if not current_user.stripe_customer_id:
+        return []
+
+    safe_limit = max(1, min(limit, 100))
+    invoices = stripe.Invoice.list(customer=current_user.stripe_customer_id, limit=safe_limit)
+    data = invoices.get("data", []) if isinstance(invoices, dict) else []
+
+    items: list[schemas.InvoiceItem] = []
+    for inv in data:
+        lines = ((inv.get("lines") or {}).get("data") or [])
+        period_start = None
+        period_end = None
+        if lines:
+            period = lines[0].get("period") or {}
+            period_start = _to_dt(period.get("start"))
+            period_end = _to_dt(period.get("end"))
+
+        items.append(
+            schemas.InvoiceItem(
+                invoice_id=inv.get("id", ""),
+                status=inv.get("status"),
+                amount_due_cents=int(inv.get("amount_due") or 0),
+                amount_paid_cents=int(inv.get("amount_paid") or 0),
+                currency=(inv.get("currency") or "eur").upper(),
+                period_start=period_start,
+                period_end=period_end,
+                hosted_invoice_url=inv.get("hosted_invoice_url"),
+                invoice_pdf=inv.get("invoice_pdf"),
+            )
+        )
+
+    return items
+
+
 @router.post("/create-checkout", response_model=schemas.CreateCheckoutResponse)
 def create_checkout_session(
     payload: schemas.CreateCheckoutRequest,

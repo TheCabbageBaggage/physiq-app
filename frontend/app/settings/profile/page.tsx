@@ -4,7 +4,7 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { apiUrl, API_ORIGIN, getAuthToken, browserPath } from '@/lib/api'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { useTranslation } from 'react-i18next'
-import { DEFAULT_SUBSCRIPTION, fetchSubscriptionHistory, fetchSubscriptionStatus, type SubscriptionHistoryItem, type SubscriptionInfo } from '@/lib/subscription'
+import { DEFAULT_SUBSCRIPTION, fetchInvoices, fetchSubscriptionHistory, fetchSubscriptionStatus, type InvoiceItem, type SubscriptionHistoryItem, type SubscriptionInfo } from '@/lib/subscription'
 
 type ProfilePayload = {
   full_name: string
@@ -47,6 +47,7 @@ export default function SettingsProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const [subscription, setSubscription] = useState<SubscriptionInfo>(DEFAULT_SUBSCRIPTION)
   const [subscriptionHistory, setSubscriptionHistory] = useState<SubscriptionHistoryItem[]>([])
+  const [invoices, setInvoices] = useState<InvoiceItem[]>([])
   const [cancelingSub, setCancelingSub] = useState(false)
 
   useEffect(() => {
@@ -82,6 +83,8 @@ export default function SettingsProfilePage() {
         setSubscription(sub)
         const history = await fetchSubscriptionHistory(20)
         setSubscriptionHistory(history)
+        const invoiceData = await fetchInvoices(20)
+        setInvoices(invoiceData)
       } catch {
         setError(t('settings.load_failed'))
       } finally {
@@ -152,6 +155,8 @@ export default function SettingsProfilePage() {
       setSubscription(sub)
       const history = await fetchSubscriptionHistory(20)
       setSubscriptionHistory(history)
+      const invoiceData = await fetchInvoices(20)
+      setInvoices(invoiceData)
     } catch (err: any) {
       setError(err.message || t('settings.cancel_failed'))
     } finally {
@@ -373,6 +378,51 @@ export default function SettingsProfilePage() {
                           </td>
                           <td className="px-3 py-2 text-gray-900">{item.event_type}</td>
                           <td className="px-3 py-2 text-gray-600">{item.stripe_event_id}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-gray-900">Invoices</h3>
+              {invoices.length === 0 ? (
+                <p className="mt-2 text-sm text-gray-500">No invoices available yet.</p>
+              ) : (
+                <div className="mt-3 overflow-x-auto rounded-lg border border-gray-200">
+                  <table className="min-w-full text-sm">
+                    <thead className="bg-gray-50 text-gray-700">
+                      <tr>
+                        <th className="px-3 py-2 text-left">Period</th>
+                        <th className="px-3 py-2 text-left">Status</th>
+                        <th className="px-3 py-2 text-left">Amount</th>
+                        <th className="px-3 py-2 text-left">Links</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invoices.map((inv) => (
+                        <tr key={inv.invoice_id} className="border-t border-gray-100">
+                          <td className="px-3 py-2 text-gray-700">
+                            {inv.period_start ? new Date(inv.period_start).toLocaleDateString() : '-'} - {inv.period_end ? new Date(inv.period_end).toLocaleDateString() : '-'}
+                          </td>
+                          <td className="px-3 py-2 text-gray-900">{inv.status || '-'}</td>
+                          <td className="px-3 py-2 text-gray-900">
+                            {(inv.amount_paid_cents / 100).toFixed(2)} {inv.currency}
+                          </td>
+                          <td className="px-3 py-2">
+                            {inv.hosted_invoice_url && (
+                              <a className="text-blue-600 hover:underline mr-3" href={inv.hosted_invoice_url} target="_blank" rel="noreferrer">
+                                Open
+                              </a>
+                            )}
+                            {inv.invoice_pdf && (
+                              <a className="text-blue-600 hover:underline" href={inv.invoice_pdf} target="_blank" rel="noreferrer">
+                                PDF
+                              </a>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
